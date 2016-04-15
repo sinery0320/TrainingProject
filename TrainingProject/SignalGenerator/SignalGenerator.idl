@@ -1,0 +1,35 @@
+// SignalGenerator.idl : IDL source for SignalGenerator
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (SignalGenerator.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(AC4E5EAD-E2CB-4121-A580-52048EB1F06F),
+	dual,
+	nonextensible,
+	pointer_default(unique)
+]
+interface ISignal : IDispatch{
+    [id(1)] HRESULT GenerateSignal([out] DOUBLE* pdCurrentSignalValue, [in] LONG nSignal);
+};
+[
+	uuid(0C7A711A-F8EF-47DD-B1CD-FFE111795FC8),
+	version(1.0),
+]
+library SignalGeneratorLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(CDBC8CB4-5EA1-4B74-AABE-334295D6C880)		
+	]
+	coclass Signal
+	{
+		[default] interface ISignal;
+	};
+};
+

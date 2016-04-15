@@ -1,0 +1,26 @@
+HKCR
+{
+	TrainingProject.OPC_Server.OPCServer.1 = s 'OPCServer Class'
+	{
+		CLSID = s '{EE13A580-1174-4AF8-B7BD-EFD4C4C8C100}'
+	}
+	TrainingProject.OPC_Server.OPCServer = s 'OPCServer Class'
+	{		
+		CurVer = s 'TrainingProject.OPC_Server.OPCServer.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {EE13A580-1174-4AF8-B7BD-EFD4C4C8C100} = s 'OPCServer Class'
+		{
+			ProgID = s 'TrainingProject.OPC_Server.OPCServer.1'
+			VersionIndependentProgID = s 'TrainingProject.OPC_Server.OPCServer'
+			ForceRemove Programmable
+			LocalServer32 = s '%MODULE%'
+			{
+				val ServerExecutable = s '%MODULE_RAW%'
+			}
+			TypeLib = s '{F83C64D3-F10B-44FA-B678-4C7EEF62C900}'
+			Version = s '3.00'
+		}
+	}
+}

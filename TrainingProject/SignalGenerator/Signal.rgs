@@ -1,0 +1,26 @@
+HKCR
+{
+	TrainingProject.SignalGeneratror.Sign.1 = s 'Signal Class'
+	{
+		CLSID = s '{CDBC8CB4-5EA1-4B74-AABE-334295D6C880}'
+	}
+	TrainingProject.SignalGeneratror.Signal = s 'Signal Class'
+	{		
+		CurVer = s 'TrainingProject.SignalGeneratror.Sign.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {CDBC8CB4-5EA1-4B74-AABE-334295D6C880} = s 'Signal Class'
+		{
+			ProgID = s 'TrainingProject.SignalGeneratror.Sign.1'
+			VersionIndependentProgID = s 'TrainingProject.SignalGeneratror.Signal'
+			ForceRemove Programmable
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{0C7A711A-F8EF-47DD-B1CD-FFE111795FC8}'
+			Version = s '1.0'
+		}
+	}
+}

@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SignalGenerator", "SignalGenerator\SignalGenerator.vcxproj", "{373F6487-3EB1-4271-99C3-F2B28209BAC7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SignalGeneratorPS", "SignalGenerator\SignalGeneratorPS.vcxproj", "{8134E694-25C5-4BA4-9926-22EC6E0F53FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7} = {373F6487-3EB1-4271-99C3-F2B28209BAC7}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestSignalGenerator", "TestSignalGenerator\TestSignalGenerator.vcxproj", "{1DFDC74C-840B-4A37-9489-7EECF9C0CA35}"
+	ProjectSection(ProjectDependencies) = postProject
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7} = {373F6487-3EB1-4271-99C3-F2B28209BAC7}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OPC_Server", "OPC_Server\OPC_Server.vcxproj", "{28921813-C2D4-4723-9A3C-B4FC83519820}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OPC_ServerPS", "OPC_Server\OPC_ServerPS.vcxproj", "{06F03634-1A07-46E4-B1FA-8673F7981216}"
+	ProjectSection(ProjectDependencies) = postProject
+		{28921813-C2D4-4723-9A3C-B4FC83519820} = {28921813-C2D4-4723-9A3C-B4FC83519820}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7}.Debug|Win32.Build.0 = Debug|Win32
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7}.Release|Win32.ActiveCfg = Release|Win32
+		{373F6487-3EB1-4271-99C3-F2B28209BAC7}.Release|Win32.Build.0 = Release|Win32
+		{8134E694-25C5-4BA4-9926-22EC6E0F53FC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8134E694-25C5-4BA4-9926-22EC6E0F53FC}.Release|Win32.ActiveCfg = Release|Win32
+		{1DFDC74C-840B-4A37-9489-7EECF9C0CA35}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1DFDC74C-840B-4A37-9489-7EECF9C0CA35}.Debug|Win32.Build.0 = Debug|Win32
+		{1DFDC74C-840B-4A37-9489-7EECF9C0CA35}.Release|Win32.ActiveCfg = Release|Win32
+		{1DFDC74C-840B-4A37-9489-7EECF9C0CA35}.Release|Win32.Build.0 = Release|Win32
+		{28921813-C2D4-4723-9A3C-B4FC83519820}.Debug|Win32.ActiveCfg = Debug|Win32
+		{28921813-C2D4-4723-9A3C-B4FC83519820}.Debug|Win32.Build.0 = Debug|Win32
+		{28921813-C2D4-4723-9A3C-B4FC83519820}.Release|Win32.ActiveCfg = Release|Win32
+		{28921813-C2D4-4723-9A3C-B4FC83519820}.Release|Win32.Build.0 = Release|Win32
+		{06F03634-1A07-46E4-B1FA-8673F7981216}.Debug|Win32.ActiveCfg = Debug|Win32
+		{06F03634-1A07-46E4-B1FA-8673F7981216}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

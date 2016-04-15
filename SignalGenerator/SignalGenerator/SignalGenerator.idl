@@ -1,0 +1,68 @@
+// SignalGenerator.idl : SignalGenerator的 IDL 源
+//
+
+// 此文件将由 MIDL 工具处理以
+// 产生类型库(SignalGenerator.tlb)和封送处理代码。
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(a817e7a2-43fa-11d0-9e44-00aa00b6770a),
+	dual,	
+	pointer_default(unique)
+]
+interface IComponentRegistrar : IDispatch
+{
+	[id(1)]	HRESULT Attach([in] BSTR bstrPath);
+	[id(2)]	HRESULT RegisterAll();
+	[id(3)]	HRESULT UnregisterAll();
+	[id(4)]	HRESULT GetComponents([out] SAFEARRAY(BSTR)* pbstrCLSIDs, [out] SAFEARRAY(BSTR)* pbstrDescriptions);
+	[id(5)]	HRESULT RegisterComponent([in] BSTR bstrCLSID);
+	[id(6)] HRESULT UnregisterComponent([in] BSTR bstrCLSID);
+};
+
+[
+	object,
+	uuid(3540D9AC-FC42-4127-8298-C379708665B6),
+	dual,
+	nonextensible,
+	pointer_default(unique)
+]
+interface ISignal : IDispatch{
+    [id(1)] HRESULT SigGen([in] LONG valNum, [out] DOUBLE* funCurValue);
+};
+[
+	uuid(9F625E00-3E9C-445E-9D1C-CDB009D934C7),
+	version(1.0),
+	custom(a817e7a1-43fa-11d0-9e44-00aa00b6770a,"{B2E2A76E-DDA9-40CE-AAC4-F539B7080D17}")
+]
+library SignalGeneratorLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(B2E2A76E-DDA9-40CE-AAC4-F539B7080D17)		
+	]
+	coclass CompReg
+	{
+		[default] interface IComponentRegistrar;
+	};
+	[
+		uuid(B976428B-7A81-442C-9873-8881C2AEA3DA)		
+	]
+	dispinterface _ISignalEvents
+	{
+		properties:
+		methods:
+	};
+	[
+		uuid(DFD5164B-0448-41A4-8D0B-0C4379988584)		
+	]
+	coclass Signal
+	{
+		[default] interface ISignal;
+		[default, source] dispinterface _ISignalEvents;
+	};
+};
+
