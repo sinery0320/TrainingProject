@@ -59,36 +59,36 @@ public:
 
     // IOPCServer Methods
 public:
-    STDMETHOD(AddGroup)(LPCWSTR szName, BOOL bActive, DWORD dwRequestedUpdateRate, OPCHANDLE hClientGroup, LONG * pTimeBias, FLOAT * pPercentDeadband, DWORD dwLCID, OPCHANDLE * phServerGroup, DWORD * pRevisedUpdateRate, REFIID riid, LPUNKNOWN * ppUnk)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(GetErrorString)(HRESULT dwError, LCID dwLocale, LPWSTR * ppString)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(GetGroupByName)(LPCWSTR szName, REFIID riid, LPUNKNOWN * ppUnk)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(GetStatus)(OPCSERVERSTATUS ** ppServerStatus)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(RemoveGroup)(OPCHANDLE hServerGroup, BOOL bForce)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(CreateGroupEnumerator)(OPCENUMSCOPE dwScope, REFIID riid, LPUNKNOWN * ppUnk)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
+    STDMETHOD(AddGroup)(LPCWSTR szName, BOOL bActive, DWORD dwRequestedUpdateRate, OPCHANDLE hClientGroup, LONG * pTimeBias, FLOAT * pPercentDeadband, DWORD dwLCID, OPCHANDLE * phServerGroup, DWORD * pRevisedUpdateRate, REFIID riid, LPUNKNOWN * ppUnk);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
+    STDMETHOD(GetErrorString)(HRESULT dwError, LCID dwLocale, LPWSTR * ppString);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
+    STDMETHOD(GetGroupByName)(LPCWSTR szName, REFIID riid, LPUNKNOWN * ppUnk);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
+    STDMETHOD(GetStatus)(OPCSERVERSTATUS ** ppServerStatus);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
+    STDMETHOD(RemoveGroup)(OPCHANDLE hServerGroup, BOOL bForce);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
+    STDMETHOD(CreateGroupEnumerator)(OPCENUMSCOPE dwScope, REFIID riid, LPUNKNOWN * ppUnk);
+    //{
+    //    // Add your function implementation here.
+    //    return E_NOTIMPL;
+    //}
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(OPCServer), COPCServer)
