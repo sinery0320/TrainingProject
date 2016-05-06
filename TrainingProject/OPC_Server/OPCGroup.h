@@ -4,7 +4,6 @@
 #include "resource.h"       // main symbols
 
 
-
 #include "OPC_Server_i.h"
 
 
@@ -30,7 +29,7 @@ public:
     {
     }
 
-    DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
+    //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
 
     BEGIN_COM_MAP(COPCGroup)
@@ -51,8 +50,9 @@ public:
     }
 
 public:
-
-
+    friend class COPCServer;
+    int m_nSequenceIndex;
+    COPCServer * m_pParent;
 
     // IOPCItemMgt Methods
 public:
@@ -91,6 +91,7 @@ public:
         // Add your function implementation here.
         return E_NOTIMPL;
     }
+private:
 };
 
 //OBJECT_ENTRY_AUTO(__uuidof(OPCGroup), COPCGroup)

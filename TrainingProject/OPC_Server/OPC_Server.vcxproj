@@ -142,7 +142,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
-    <None Include="OPCGroup.rgs" />
     <None Include="OPCServer.rgs" />
     <None Include="OPC_Server.rgs" />
   </ItemGroup>

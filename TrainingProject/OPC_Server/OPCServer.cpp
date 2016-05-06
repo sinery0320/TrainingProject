@@ -9,6 +9,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
 {
     // Add your function implementation here.
     return E_NOTIMPL;
+
 }
 STDMETHODIMP COPCServer::GetErrorString(HRESULT dwError, LCID dwLocale, LPWSTR * ppString)
 {

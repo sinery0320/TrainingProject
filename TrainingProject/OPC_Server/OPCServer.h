@@ -2,19 +2,17 @@
 
 #pragma once
 #include "resource.h"       // main symbols
-
-
-
+#include "opcerror.h"
 #include "OPC_Server_i.h"
+#include "OPCGroup.h"
 
-
+#define GROUP_NUMBER 10
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)
 #error "Single-threaded COM objects are not properly supported on Windows CE platform, such as the Windows Mobile platforms that do not include full DCOM support. Define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA to force ATL to support creating single-thread COM object's and allow use of it's single-threaded COM object implementations. The threading model in your rgs file was set to 'Free' as that is the only threading model supported in non DCOM Windows CE platforms."
 #endif
 
 using namespace ATL;
-
 
 // COPCServer
 
@@ -29,7 +27,6 @@ public:
     COPCServer()
     {
     }
-
     DECLARE_REGISTRY_RESOURCEID(IDR_OPCSERVER)
 
 
@@ -37,23 +34,43 @@ public:
         //COM_INTERFACE_ENTRY(IOPCServer_temp)
         //COM_INTERFACE_ENTRY(IDispatch)
         COM_INTERFACE_ENTRY(IOPCServer)
+        COM_INTERFACE_ENTRY_AGGREGATE(IID_IOPCItemMgt, m_pGroupObject)
     END_COM_MAP()
-
+    CComObject<COPCGroup> * m_pGroupObject[GROUP_NUMBER];
 
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
 
     HRESULT FinalConstruct()
     {
+        HRESULT hr;
+        for (size_t i = 0; i < GROUP_NUMBER; i++)
+        {
+            hr = CComObject<COPCGroup>::CreateInstance(&m_pGroupObject[i]);
+            if (SUCCEEDED(hr))
+            {
+                m_pGroupObject[i]->m_nSequenceIndex = i;
+                m_pGroupObject[i]->m_pParent = this;
+            }
+            else
+            {
+                ATLTRACE("Failed to creat COPCGroup instance");
+                return E_HANDLE;
+            }
+        }
         return S_OK;
     }
 
     void FinalRelease()
     {
+        for (size_t i = 0; i < GROUP_NUMBER; i++)
+        {
+
+        }
     }
 
 public:
-
+    friend class COPCGroup;
 
 
 

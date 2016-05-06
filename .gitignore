@@ -471,3 +471,8 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# DIY
+opccomn.*
+opcda.*
+opcerror.*
