@@ -27,8 +27,26 @@ class ATL_NO_VTABLE COPCGroup :
 public:
     COPCGroup()
     {
+        m_nSequenceIndex = 0;
+        m_bInUse = false;
+        m_pParent = NULL;
+        m_wcSzName = 0;
+        m_bActive = false;
+        m_lTimeBias = 0L;
+        m_percentDeadband = 0.0;
+        m_dwLCID = 0;;
+        m_dwUpdateRate = 0;
+        m_hServerGroup = 0;
+        m_hClientGroup = 0;
     }
 
+    ~COPCGroup()
+    {
+        if (m_wcSzName)
+        {
+            delete m_wcSzName;
+        }
+    }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
 
@@ -52,7 +70,16 @@ public:
 public:
     friend class COPCServer;
     int m_nSequenceIndex;
+    bool m_bInUse;
     COPCServer * m_pParent;
+    LPWSTR m_wcSzName;
+    bool m_bActive;
+    LONG m_lTimeBias;
+    FLOAT m_percentDeadband;
+    DWORD m_dwLCID;
+    DWORD m_dwUpdateRate;
+    OPCHANDLE m_hServerGroup;
+    OPCHANDLE m_hClientGroup;
 
     // IOPCItemMgt Methods
 public:
