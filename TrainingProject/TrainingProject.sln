@@ -23,6 +23,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OPC_ServerPS", "OPC_Server\
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestServer", "TestServer\TestServer.vcxproj", "{D7364108-5E3E-4EEA-A20D-E69448988C74}"
+	ProjectSection(ProjectDependencies) = postProject
+		{28921813-C2D4-4723-9A3C-B4FC83519820} = {28921813-C2D4-4723-9A3C-B4FC83519820}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
