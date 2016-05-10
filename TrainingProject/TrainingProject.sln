@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OPC_ServerPS", "OPC_Server\
 		{28921813-C2D4-4723-9A3C-B4FC83519820} = {28921813-C2D4-4723-9A3C-B4FC83519820}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestServer", "TestServer\TestServer.vcxproj", "{D7364108-5E3E-4EEA-A20D-E69448988C74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -44,6 +46,10 @@ Global
 		{28921813-C2D4-4723-9A3C-B4FC83519820}.Release|Win32.Build.0 = Release|Win32
 		{06F03634-1A07-46E4-B1FA-8673F7981216}.Debug|Win32.ActiveCfg = Debug|Win32
 		{06F03634-1A07-46E4-B1FA-8673F7981216}.Release|Win32.ActiveCfg = Release|Win32
+		{D7364108-5E3E-4EEA-A20D-E69448988C74}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7364108-5E3E-4EEA-A20D-E69448988C74}.Debug|Win32.Build.0 = Debug|Win32
+		{D7364108-5E3E-4EEA-A20D-E69448988C74}.Release|Win32.ActiveCfg = Release|Win32
+		{D7364108-5E3E-4EEA-A20D-E69448988C74}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
