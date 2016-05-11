@@ -48,7 +48,6 @@ public:
             {
                 m_pGroupObject[i]->m_nSequenceIndex = i;
                 m_pGroupObject[i]->m_pParent = this;
-                return hr;
             }
             else
             {
@@ -56,6 +55,7 @@ public:
                 return E_HANDLE;
             }
         }
+        return hr;
     }
 
     void FinalRelease()

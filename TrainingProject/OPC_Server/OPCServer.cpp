@@ -65,6 +65,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     }
     else
     {
+        ATLTRACE(L"%d\n", wcslen(szName) + 1);
         pGroupName = new WCHAR[wcslen(szName) + 1];
         if (pGroupName == NULL)
         {
