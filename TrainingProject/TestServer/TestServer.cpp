@@ -13,7 +13,8 @@ int main()
     CLSID clsid;
     HRESULT hr;
     //hr = CoInitialize(NULL);
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    //hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     //CComPtr<IOPCServer> pIOPCServer;
     IUnknown *pUnk = NULL;
     IOPCServer *pIOPCServer = NULL;
@@ -56,6 +57,24 @@ int main()
     else
     {
         cout << "Get OPCServer interface failed!" << endl;
+        pUnk->Release();
+    }
+    
+    LONG lTimeBias = 0;
+    FLOAT dDeadBand = 0.0;
+    OPCHANDLE phServerGroup;
+    DWORD dwUpdateRate = 0;
+    IOPCItemMgt * pIOPCItemMgt = NULL;
+    DWORD dwLCID = 2052;
+    hr = pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
+    if (SUCCEEDED(hr))
+    {
+        cout << "Call AddGroup function successfully!" << endl;
+    }
+    else
+    {
+        cout << "Call AddGroup function failed!" << endl;
+        pIOPCServer->Release();
         pUnk->Release();
     }
     CoUninitialize();

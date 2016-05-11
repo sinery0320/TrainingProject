@@ -52,7 +52,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     {
         //don't have group name;
         pGroupName = new WCHAR[32];
-        if (pGroupName = NULL)
+        if (pGroupName == NULL)
         {
             ATLTRACE(L"IOPCServer::AddGroup() - Failed to allocate memory of pGroupName, returning E_OUTOFMEMORY");  
             return E_OUTOFMEMORY;
@@ -65,8 +65,8 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     }
     else
     {
-        pGroupName = new WCHAR(wcslen(szName) + 1);
-        if (pGroupName = NULL)
+        pGroupName = new WCHAR[wcslen(szName) + 1];
+        if (pGroupName == NULL)
         {
             ATLTRACE(L"IOPCServer::AddGroup() - Failed to allocate memory of pGroupName, returning E_OUTOFMEMORY");
             return E_OUTOFMEMORY;
