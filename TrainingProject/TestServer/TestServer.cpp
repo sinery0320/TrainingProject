@@ -13,8 +13,8 @@ int main()
     CLSID clsid;
     HRESULT hr;
     //hr = CoInitialize(NULL);
-    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-    //hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    //hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     //CComPtr<IOPCServer> pIOPCServer;
     IUnknown *pUnk = NULL;
     IOPCServer *pIOPCServer = NULL;

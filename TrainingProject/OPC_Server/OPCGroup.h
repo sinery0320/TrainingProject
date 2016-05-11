@@ -13,6 +13,30 @@
 #endif
 
 using namespace ATL;
+//COPCItem
+class COPCItem
+{
+public:
+    friend class COPCGroup;
+    //COPCItem();
+    //~COPCItem();
+    bool m_bInUse;
+    bool m_bActive;
+    OPCHANDLE m_hClient;
+    OPCHANDLE m_hServer;
+    WCHAR * m_szItemName;
+
+    VARIANT m_varData;
+    FILETIME m_ftTimeStamp;
+    COPCGroup * m_pParentGroup;
+};
+//COPCItem::COPCItem()
+//{
+//}
+//
+//COPCItem::~COPCItem()
+//{
+//}
 
 
 // COPCGroup
@@ -45,6 +69,7 @@ public:
         if (m_wcSzName)
         {
             delete m_wcSzName;
+            m_wcSzName = NULL;
         }
     }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
@@ -81,43 +106,20 @@ public:
     OPCHANDLE m_hServerGroup;
     OPCHANDLE m_hClientGroup;
 
+    VARIANT * m_pvValue;
+    WORD * m_pwQualities;
+    COPCItem * m_cItem[ITEM_NUMBER];
+
+
     // IOPCItemMgt Methods
 public:
-    STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(ValidateItems)(DWORD dwCount, OPCITEMDEF * pItemArray, BOOL bBlobUpdate, OPCITEMRESULT ** ppValidationResults, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(RemoveItems)(DWORD dwCount, OPCHANDLE * phServer, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(SetActiveState)(DWORD dwCount, OPCHANDLE * phServer, BOOL bActive, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(SetClientHandles)(DWORD dwCount, OPCHANDLE * phServer, OPCHANDLE * phClient, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(SetDatatypes)(DWORD dwCount, OPCHANDLE * phServer, VARTYPE * pRequestedDatatypes, HRESULT ** ppErrors)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
-    STDMETHOD(CreateEnumerator)(REFIID riid, LPUNKNOWN * ppUnk)
-    {
-        // Add your function implementation here.
-        return E_NOTIMPL;
-    }
+    STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors);
+    STDMETHOD(ValidateItems)(DWORD dwCount, OPCITEMDEF * pItemArray, BOOL bBlobUpdate, OPCITEMRESULT ** ppValidationResults, HRESULT ** ppErrors);
+    STDMETHOD(RemoveItems)(DWORD dwCount, OPCHANDLE * phServer, HRESULT ** ppErrors);
+    STDMETHOD(SetActiveState)(DWORD dwCount, OPCHANDLE * phServer, BOOL bActive, HRESULT ** ppErrors);
+    STDMETHOD(SetClientHandles)(DWORD dwCount, OPCHANDLE * phServer, OPCHANDLE * phClient, HRESULT ** ppErrors);
+    STDMETHOD(SetDatatypes)(DWORD dwCount, OPCHANDLE * phServer, VARTYPE * pRequestedDatatypes, HRESULT ** ppErrors);
+    STDMETHOD(CreateEnumerator)(REFIID riid, LPUNKNOWN * ppUnk);
 private:
 };
 
