@@ -77,6 +77,20 @@ int main()
         pIOPCServer->Release();
         pUnk->Release();
     }
+
+    OPCITEMDEF opcItem = {
+        NULL,
+        L"Item1",
+        TRUE,
+        0,
+        0,
+        NULL,
+        VT_R8,
+        0
+    };
+    OPCITEMRESULT * opcItemResult = NULL;
+    HRESULT * errorResult = NULL;
+    pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
     CoUninitialize();
     return 0;
 }
