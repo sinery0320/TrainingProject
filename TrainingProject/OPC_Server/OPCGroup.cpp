@@ -13,10 +13,28 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
     HRESULT * pHr = NULL;
     bool bSuccess = false;
     COPCItem * pNewItem = NULL;
+    //*ppAddResults = pItemResult;
+    //*ppErrors = pHr;
+    pItemResult = new OPCITEMRESULT[dwCount];
+    if (!pItemResult)
+    {
+        ATLTRACE(L"COPCGroup::AddItems - New operation of pItemResult failed, returning E_OUTOFMEMORY");
+        return E_OUTOFMEMORY;
+    }
+
+    pHr = new HRESULT[dwCount];
+    if (!pHr)
+    {
+        ATLTRACE(L"COPCGroup::AddItems - New operation of pHr failed, returning E_OUTOFMEMORY");
+        return E_OUTOFMEMORY;
+    }
+
     *ppAddResults = pItemResult;
     *ppErrors = pHr;
-    pItemResult = new OPCITEMRESULT[dwCount];
-
+    for (size_t i = 0; i < dwCount; i++)
+    {
+        
+    }
     return E_NOTIMPL;
 }
 STDMETHODIMP COPCGroup::ValidateItems(DWORD dwCount, OPCITEMDEF * pItemArray, BOOL bBlobUpdate, OPCITEMRESULT ** ppValidationResults, HRESULT ** ppErrors)
