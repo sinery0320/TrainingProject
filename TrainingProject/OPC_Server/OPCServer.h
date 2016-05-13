@@ -33,45 +33,59 @@ public:
         //COM_INTERFACE_ENTRY(IOPCServer_temp)
         //COM_INTERFACE_ENTRY(IDispatch)
         COM_INTERFACE_ENTRY(IOPCServer)
-        COM_INTERFACE_ENTRY_AGGREGATE(IID_IOPCItemMgt, m_pGroupObject)
+        //COM_INTERFACE_ENTRY_AGGREGATE(IID_IOPCItemMgt, m_mapNametoGroup)
     END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
 
     HRESULT FinalConstruct()
     {
-        HRESULT hr;
         for (size_t i = 0; i < GROUP_NUMBER; i++)
         {
-            hr = CComObject<COPCGroup>::CreateInstance(&m_pGroupObject[i]);
-            if (SUCCEEDED(hr))
-            {
-                m_pGroupObject[i]->m_nSequenceIndex = i;
-                m_pGroupObject[i]->m_pParent = this;
-            }
-            else
-            {
-                ATLTRACE(L"COPCServer::FinalConstruct - Failed to creat COPCGroup instance, returning E_HANDLE");
-                return E_HANDLE;
-            }
+            m_bGroupInUse[i] = false;
         }
-        return hr;
+        //HRESULT hr;
+        //for (size_t i = 0; i < GROUP_NUMBER; i++)
+        //{
+        //    m_bGroupInUse[i] = false;
+        //    hr = CComObject<COPCGroup>::CreateInstance(&m_pGroupObject[i]);
+        //    if (SUCCEEDED(hr))
+        //    {
+        //        m_pGroupObject[i]->m_nSequenceIndex = i;
+        //        m_pGroupObject[i]->m_pParent = this;
+        //    }
+        //    else
+        //    {
+        //        ATLTRACE(L"COPCServer::FinalConstruct - Failed to creat COPCGroup instance, returning E_HANDLE");
+        //        return E_HANDLE;
+        //    }
+        //}
+        //return hr;
     }
 
     void FinalRelease()
     {
-        for (size_t i = 0; i < GROUP_NUMBER; i++)
+        //for (size_t i = 0; i < GROUP_NUMBER; i++)
+        //{
+        //    m_mapNametoGroup[i]->Release();
+        //    return;
+        //}
+        if (!m_mapNametoGroup.empty())
         {
-            m_pGroupObject[i]->Release();
-            return;
+            map<wstring, CComObject<COPCGroup>>::iterator iter = m_mapNametoGroup.begin();
+            while (iter != m_mapNametoGroup.end())
+            {
+                iter->second.Release();
+                iter = m_mapNametoGroup.erase(iter);
+            }
         }
     }
 
 public:
     friend class COPCGroup;
-    //map<wstring, CComObject<COPCGroup>> m_GroupObjectMap;
-    CComObject<COPCGroup> * m_pGroupObject[GROUP_NUMBER];
-
+    map<wstring, CComObject<COPCGroup>> m_mapNametoGroup;
+    //CComObject<COPCGroup> * m_pGroupObject[GROUP_NUMBER];
+    bool m_bGroupInUse[GROUP_NUMBER];
 
     // IOPCServer Methods
 public:

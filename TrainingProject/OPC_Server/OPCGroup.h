@@ -18,26 +18,48 @@ class COPCItem
 {
 public:
     friend class COPCGroup;
-    //COPCItem();
-    //~COPCItem();
+    COPCItem()
+    {
+        m_bInUse = false;
+        m_bActive = false;
+        m_hClientItem = 0;
+        m_hServerItem = 0;
+        m_szItemName = NULL;
+        m_szAccessPath = NULL;
+
+        m_varData.vt = VT_R8;
+        m_varData.dblVal = 0.0;
+        //m_ftTimeStamp.dwHighDateTime = 0;
+        //m_ftTimeStamp.dwLowDateTime = 0;
+        m_pParentGroup = NULL;
+        m_AsyncMask = 0;
+    }
+    ~COPCItem()
+    {
+        if (m_szItemName != NULL)
+        {
+            delete m_szItemName;
+            m_szItemName = NULL;
+        }
+        m_pParentGroup = NULL;
+    }
     bool m_bInUse;
     bool m_bActive;
-    OPCHANDLE m_hClient;
-    OPCHANDLE m_hServer;
+    OPCHANDLE m_hClientItem;
+    OPCHANDLE m_hServerItem;
+    VARTYPE m_vtCanonicalDataType;
+    VARTYPE m_vtRequestedDataType;
     WCHAR * m_szItemName;
+    WCHAR * m_szAccessPath;
 
     VARIANT m_varData;
-    FILETIME m_ftTimeStamp;
+    //FILETIME m_ftTimeStamp;
+    WORD m_AsyncMask;
     COPCGroup * m_pParentGroup;
-};
-//COPCItem::COPCItem()
-//{
-//}
-//
-//COPCItem::~COPCItem()
-//{
-//}
 
+
+    HRESULT InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCITEMRESULT * pOPCItemResult);
+};
 
 // COPCGroup
 
@@ -62,14 +84,27 @@ public:
         m_dwUpdateRate = 0;
         m_hServerGroup = 0;
         m_hClientGroup = 0;
+        
+        for (size_t i = 0; i < ITEM_NUMBER; i++)
+        {
+            m_cItem[i] = NULL;
+        }
     }
 
     ~COPCGroup()
     {
-        if (m_wcSzName)
+        if (m_wcSzName != NULL)
         {
             delete m_wcSzName;
             m_wcSzName = NULL;
+        }
+        for (size_t i = 0; i < ITEM_NUMBER; i++)
+        {
+            if (m_cItem[i] != NULL)
+            {
+                delete m_cItem[i];
+                m_cItem[i] = NULL;
+            }
         }
     }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
@@ -85,11 +120,29 @@ public:
 
     HRESULT FinalConstruct()
     {
+        //for (size_t i = 0; i < ITEM_NUMBER; i++)
+        //{
+        //    m_cItem[i] = new COPCItem;
+        //    m_cItem[i]->m_pParentGroup = this;
+        //    if (m_cItem[i] == NULL)
+        //    {
+        //        ATLTRACE(L"COPCGroup::FinalConstruct - New operation of m_cItem failed, returning E_OUTOFMEMORY");
+        //        return E_OUTOFMEMORY;
+        //    }
+        //}
         return S_OK;
     }
 
     void FinalRelease()
     {
+        //for (size_t i = 0; i < ITEM_NUMBER; i++)
+        //{
+        //    if (m_cItem[i] != NULL)
+        //    {
+        //        delete m_cItem[i];
+        //        m_cItem[i] = NULL;
+        //    }
+        //}
     }
 
 public:

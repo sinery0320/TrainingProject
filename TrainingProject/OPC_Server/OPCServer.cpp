@@ -22,7 +22,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         }
     }
 
-    //default return value
+    // default return value
     *phServerGroup = NULL;
     *ppUnk = NULL;
 
@@ -30,10 +30,10 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     COPCGroup * pGroup = NULL;
     LPWSTR pGroupName = NULL;
     int currentPosition = 0;
-
     for (currentPosition = 0; currentPosition < GROUP_NUMBER; currentPosition++)
     {
-        if (m_pGroupObject[currentPosition]->m_bInUse == false)
+        //if (m_pGroupObject[currentPosition]->m_bInUse == false)
+        if (m_bGroupInUse[currentPosition] == false)
         {
             break;
         }
@@ -50,7 +50,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
 
     if (szName == NULL || *szName == (WCHAR)NULL)
     {
-        //don't have group name;
+        // don't have group name;
         pGroupName = new WCHAR[32];
         if (pGroupName == NULL)
         {
@@ -59,7 +59,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         }
         else
         {
-            //default group name.
+            // default group name.
             wsprintf(pGroupName, L"Group%d", currentPosition);
         }
     }
@@ -87,11 +87,13 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         return OPC_E_DUPLICATENAME;
     }
 
-    //Assign value of new Group
-    m_pGroupObject[currentPosition]->m_bInUse = true;
-    //pGroupName is created by new, the release of m_wcSzName is in the destructor function
-    m_pGroupObject[currentPosition]->m_wcSzName = pGroupName;
-    m_pGroupObject[currentPosition]->m_bActive = bActive;
+    // Assign value of new Group
+    //m_pGroupObject[currentPosition]->m_bInUse = true;
+    m_bGroupInUse[currentPosition] = true;
+    // pGroupName is created by new, the release of m_wcSzName is in the destructor function
+    //m_pGroupObject[currentPosition]->m_wcSzName = pGroupName;
+    //m_pGroupObject[currentPosition]->m_bActive = bActive;
+
     if (dwRequestedUpdateRate > MIN_UPDATE_RATE)
     {
         m_pGroupObject[currentPosition]->m_dwUpdateRate = MIN_UPDATE_RATE;
@@ -167,26 +169,42 @@ STDMETHODIMP COPCServer::GetGroupByName(LPCWSTR szName, REFIID riid, LPUNKNOWN *
         ATLTRACE(L"IOPCServer::GetGroupByName - riid is IID_NULL, returning E_INVALIDARG");
         return E_INVALIDARG;
     }
-    for (size_t i = 0; i < GROUP_NUMBER; i++)
+    if (m_mapNametoGroup.find(szName) != m_mapNametoGroup.end())
     {
-        if (m_pGroupObject[i]->m_bInUse == false)
+        hrFindResult = m_mapNametoGroup[szName].QueryInterface(riid, (LPVOID*)ppUnk);
+        if (FAILED(hrFindResult))
         {
-            continue;
+            return hrFindResult;
         }
-        if (wcscmp(m_pGroupObject[i]->m_wcSzName, szName) == 0)
+        else
         {
-            hrFindResult = m_pGroupObject[i]->QueryInterface(riid, (LPVOID*)ppUnk);
-            if (FAILED(hrFindResult))
-            {
-                return hrFindResult;
-            }
-            else
-            {
-                return S_OK;
-            }
+            return S_OK;
         }
     }
-    return E_FAIL;
+    else
+    {
+        return E_FAIL;
+    }
+    //for (size_t i = 0; i <szName GROUP_NUMBER; i++)
+    //{
+    //    if (m[i]->m_bInUse == false)
+    //    {
+    //        continue;
+    //    }
+    //    if (wcscmp(m_pGroupObject[i]->m_wcSzName, szName) == 0)
+    //    {
+    //        hrFindResult = m_pGroupObject[i]->QueryInterface(riid, (LPVOID*)ppUnk);
+    //        if (FAILED(hrFindResult))
+    //        {
+    //            return hrFindResult;
+    //        }
+    //        else
+    //        {
+    //            return S_OK;
+    //        }
+    //    }
+    //}
+    //return E_FAIL;
     //return E_NOTIMPL;
 }
 STDMETHODIMP COPCServer::GetStatus(OPCSERVERSTATUS ** ppServerStatus)

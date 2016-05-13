@@ -90,7 +90,18 @@ int main()
     };
     OPCITEMRESULT * opcItemResult = NULL;
     HRESULT * errorResult = NULL;
-    pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
+    hr = pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
+    if (SUCCEEDED(hr))
+    {
+        cout << "AddItems successfully!" << endl;
+    }
+    else
+    {
+        cout << "AddItems failed!" << endl;
+        pIOPCItemMgt->Release();
+        pIOPCServer->Release();
+        pUnk->Release();
+    }
     CoUninitialize();
     return 0;
 }
