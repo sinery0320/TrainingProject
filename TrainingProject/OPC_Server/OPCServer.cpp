@@ -27,7 +27,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     *ppUnk = NULL;
 
     HRESULT hr = S_OK;
-    COPCGroup * pGroup = NULL;
+    CComObject<COPCGroup> * pGroup = NULL;
     LPWSTR pGroupName = NULL;
     int currentPosition = 0;
     for (currentPosition = 0; currentPosition < GROUP_NUMBER; currentPosition++)
@@ -65,7 +65,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     }
     else
     {
-        ATLTRACE(L"%d\n", wcslen(szName) + 1);
+        //ATLTRACE(L"%d\n", wcslen(szName) + 1);
         pGroupName = new WCHAR[wcslen(szName) + 1];
         if (pGroupName == NULL)
         {
@@ -91,60 +91,69 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     //m_pGroupObject[currentPosition]->m_bInUse = true;
     m_bGroupInUse[currentPosition] = true;
     // pGroupName is created by new, the release of m_wcSzName is in the destructor function
+    hr = CComObject<COPCGroup>::CreateInstance(&pGroup);
+    if (FAILED(hr))
+    {
+        ATLTRACE(L"IOPCServer::AddGroup - Failed to CreateInstance of pGroup, returning hr");
+        return hr;
+    }
+    pGroup->m_wcSzName = pGroupName;
+    pGroup->m_bActive = bActive;
     //m_pGroupObject[currentPosition]->m_wcSzName = pGroupName;
     //m_pGroupObject[currentPosition]->m_bActive = bActive;
 
     if (dwRequestedUpdateRate > MIN_UPDATE_RATE)
     {
-        m_pGroupObject[currentPosition]->m_dwUpdateRate = MIN_UPDATE_RATE;
+        pGroup->m_dwUpdateRate = MIN_UPDATE_RATE;
     }
     else if (dwRequestedUpdateRate >= 0 && dwRequestedUpdateRate <= MIN_UPDATE_RATE)
     {
-        m_pGroupObject[currentPosition]->m_dwUpdateRate = dwRequestedUpdateRate;
+        pGroup->m_dwUpdateRate = dwRequestedUpdateRate;
     }
     if (pRevisedUpdateRate)
     {
-        *pRevisedUpdateRate = m_pGroupObject[currentPosition]->m_dwUpdateRate;
+        *pRevisedUpdateRate = pGroup->m_dwUpdateRate;
     }
-    m_pGroupObject[currentPosition]->m_hServerGroup = currentPosition;
-    m_pGroupObject[currentPosition]->m_hClientGroup = hClientGroup;
-    *phServerGroup = (OPCHANDLE)m_pGroupObject[currentPosition];
+    pGroup->m_hServerGroup = currentPosition;
+    pGroup->m_hClientGroup = hClientGroup;
+    *phServerGroup = (OPCHANDLE)pGroup;
     if (pTimeBias)
     {
-        m_pGroupObject[currentPosition]->m_lTimeBias = *pTimeBias;
+        pGroup->m_lTimeBias = *pTimeBias;
     }
     else
     {
         TIME_ZONE_INFORMATION timeZoneInfo;
         if (GetTimeZoneInformation(&timeZoneInfo) != TIME_ZONE_ID_INVALID)
         {
-            m_pGroupObject[currentPosition]->m_lTimeBias = timeZoneInfo.Bias;
+            pGroup->m_lTimeBias = timeZoneInfo.Bias;
         }
         else
         {
-            m_pGroupObject[currentPosition]->m_lTimeBias = 0L;
+            pGroup->m_lTimeBias = 0L;
         }
     }
     if (pPercentDeadband)
     {
-        m_pGroupObject[currentPosition]->m_percentDeadband = *pPercentDeadband;
+        pGroup->m_percentDeadband = *pPercentDeadband;
     }
     else
     {
-        m_pGroupObject[currentPosition]->m_percentDeadband = 0.0;
+        pGroup->m_percentDeadband = 0.0;
     }
-    m_pGroupObject[currentPosition]->m_dwLCID = dwLCID;
-    m_pGroupObject[currentPosition]->m_pParent = this;
+    pGroup->m_dwLCID = dwLCID;
+    pGroup->m_pParent = this;
     if (pRevisedUpdateRate)
     {
-        *pRevisedUpdateRate = m_pGroupObject[currentPosition]->m_dwUpdateRate;
+        *pRevisedUpdateRate = pGroup->m_dwUpdateRate;
     }
-    hr = m_pGroupObject[currentPosition]->QueryInterface(riid, (LPVOID*)ppUnk);
+    hr = pGroup->QueryInterface(riid, (LPVOID*)ppUnk);
     if (FAILED(hr))
     {
         ATLTRACE(L"IOPCServer::AddGroup - Failed to query interface, returning hr");
         return hr;
     }
+    m_mapNametoGroup[szName] = *pGroup;
     return S_OK;
     //return E_NOTIMPL;
 
@@ -185,6 +194,7 @@ STDMETHODIMP COPCServer::GetGroupByName(LPCWSTR szName, REFIID riid, LPUNKNOWN *
     {
         return E_FAIL;
     }
+    // Useless code
     //for (size_t i = 0; i <szName GROUP_NUMBER; i++)
     //{
     //    if (m[i]->m_bInUse == false)

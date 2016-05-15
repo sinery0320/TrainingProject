@@ -15,22 +15,24 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
     COPCItem * pNewItem = NULL;
     //*ppAddResults = pItemResult;
     //*ppErrors = pHr;
-    pItemResult = new OPCITEMRESULT[dwCount];
+    //pItemResult = new OPCITEMRESULT[dwCount];
+    pItemResult = (OPCITEMRESULT*)CoTaskMemAlloc(dwCount * sizeof(OPCITEMRESULT));
     if (pItemResult == NULL)
     {
         ATLTRACE(L"COPCGroup::AddItems - New operation of pItemResult failed, returning E_OUTOFMEMORY");
         return E_OUTOFMEMORY;
     }
 
-    pHr = new HRESULT[dwCount];
+    //pHr = new HRESULT[dwCount];
+    pHr = (HRESULT*)CoTaskMemAlloc(dwCount * sizeof(HRESULT));
     if (pHr == NULL)
     {
         ATLTRACE(L"COPCGroup::AddItems - New operation of pHr failed, returning E_OUTOFMEMORY");
         return E_OUTOFMEMORY;
     }
 
-    *ppAddResults = pItemResult;
-    *ppErrors = pHr;
+    //*ppAddResults = pItemResult;
+    //*ppErrors = pHr;
     // for every item needs to be added
     for (size_t i = 0; i < dwCount; i++)
     {
@@ -39,7 +41,8 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
         pHr[i] = S_OK;
         for (stCurrentPosition = 0; stCurrentPosition < ITEM_NUMBER; stCurrentPosition++)
         {
-            if (m_cItem[stCurrentPosition]->m_bInUse == false)
+            //if (m_cItem[stCurrentPosition]->m_bInUse == false)
+            if (m_bItemInUse[stCurrentPosition] == false)
             {
                 break;
             }
@@ -67,9 +70,19 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             bSuccess = false;
             continue;
         }
-        pNewItem->m_bInUse = true;
-        m_cItem[hOPC] = pNewItem;
+        m_bItemInUse[stCurrentPosition] = true;
+        if (m_mapIndextoItem.find(stCurrentPosition) != m_mapIndextoItem.end())
+        {
+            ATLTRACE(L"COPCGroup::AddItems - Already has item with same server handle, pHr[%d] = ", i);
+            pHr[i] = E_HANDLE;
+            bSuccess = false;
+            continue;
+        }
+        pNewItem->m_pParentGroup = this;
+        m_mapIndextoItem[stCurrentPosition] = *pNewItem;
     }
+    *ppAddResults = pItemResult;
+    *ppErrors = pHr;
     if (bSuccess == true)
     {
         return S_OK;

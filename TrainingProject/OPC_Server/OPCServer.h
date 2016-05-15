@@ -44,6 +44,7 @@ public:
         {
             m_bGroupInUse[i] = false;
         }
+        // Useless code
         //HRESULT hr;
         //for (size_t i = 0; i < GROUP_NUMBER; i++)
         //{
@@ -60,25 +61,28 @@ public:
         //        return E_HANDLE;
         //    }
         //}
-        //return hr;
+        return S_OK;
     }
 
     void FinalRelease()
     {
+        // Useless code
         //for (size_t i = 0; i < GROUP_NUMBER; i++)
         //{
         //    m_mapNametoGroup[i]->Release();
         //    return;
         //}
-        if (!m_mapNametoGroup.empty())
-        {
-            map<wstring, CComObject<COPCGroup>>::iterator iter = m_mapNametoGroup.begin();
-            while (iter != m_mapNametoGroup.end())
-            {
-                iter->second.Release();
-                iter = m_mapNametoGroup.erase(iter);
-            }
-        }
+
+        // Manually release may cause heap corruption
+        //if (!m_mapNametoGroup.empty())
+        //{
+        //    map<wstring, CComObject<COPCGroup>>::iterator iter = m_mapNametoGroup.begin();
+        //    while (iter != m_mapNametoGroup.end())
+        //    {
+        //        iter->second.Release();
+        //        iter = m_mapNametoGroup.erase(iter);
+        //    }
+        //}
     }
 
 public:

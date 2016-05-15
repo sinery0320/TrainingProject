@@ -5,11 +5,13 @@
 #include "..\OPC_Server\OPC_Server_i.h"
 #include "..\OPC_Server\OPC_Server_i.c"
 
+
 using namespace std;
 
 
 int main()
 {
+    //IMalloc * pIMalloc;
     CLSID clsid;
     HRESULT hr;
     //hr = CoInitialize(NULL);
@@ -27,6 +29,7 @@ int main()
         cout << "COM Initialized failed" << endl;
         return -1;
     }
+    //hr = CoGetMalloc(MEMCTX_TASK, &pIMalloc);
     hr = CLSIDFromProgID(L"TrainingProject.OPC_Server.OPCServer.1", &clsid);
     if (SUCCEEDED(hr))
     {
@@ -91,6 +94,7 @@ int main()
     OPCITEMRESULT * opcItemResult = NULL;
     HRESULT * errorResult = NULL;
     hr = pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
+    //cout << hr << endl;
     if (SUCCEEDED(hr))
     {
         cout << "AddItems successfully!" << endl;
@@ -101,6 +105,14 @@ int main()
         pIOPCItemMgt->Release();
         pIOPCServer->Release();
         pUnk->Release();
+    }
+    if (opcItemResult != NULL)
+    {
+        CoTaskMemFree(opcItemResult);
+    }
+    if (errorResult != NULL)
+    {
+        CoTaskMemFree(errorResult);
     }
     CoUninitialize();
     return 0;

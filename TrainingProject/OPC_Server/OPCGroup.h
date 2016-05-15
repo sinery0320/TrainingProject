@@ -5,7 +5,7 @@
 
 
 #include "OPC_Server_i.h"
-
+extern IMalloc * pIMalloc;
 
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)
@@ -13,6 +13,7 @@
 #endif
 
 using namespace ATL;
+using namespace std;
 //COPCItem
 class COPCItem
 {
@@ -20,7 +21,7 @@ public:
     friend class COPCGroup;
     COPCItem()
     {
-        m_bInUse = false;
+        //m_bInUse = false;
         m_bActive = false;
         m_hClientItem = 0;
         m_hServerItem = 0;
@@ -34,19 +35,19 @@ public:
         m_pParentGroup = NULL;
         m_AsyncMask = 0;
     }
-    ~COPCItem()
-    {
-        if (m_szItemName != NULL)
-        {
-            delete m_szItemName;
-            m_szItemName = NULL;
-        }
-        m_pParentGroup = NULL;
-    }
-    bool m_bInUse;
+    //~COPCItem()
+    //{
+    //    if (m_szItemName != NULL)
+    //    {
+    //        delete [] m_szItemName;
+    //        m_szItemName = NULL;
+    //    }
+    //    m_pParentGroup = NULL;
+    //}
+    //bool m_bInUse;
     bool m_bActive;
     OPCHANDLE m_hClientItem;
-    OPCHANDLE m_hServerItem;
+    OPCHANDLE m_hServerItem;// Sequence of item in group
     VARTYPE m_vtCanonicalDataType;
     VARTYPE m_vtRequestedDataType;
     WCHAR * m_szItemName;
@@ -74,7 +75,7 @@ public:
     COPCGroup()
     {
         m_nSequenceIndex = 0;
-        m_bInUse = false;
+        //m_bItemInUse = false;
         m_pParent = NULL;
         m_wcSzName = 0;
         m_bActive = false;
@@ -87,26 +88,27 @@ public:
         
         for (size_t i = 0; i < ITEM_NUMBER; i++)
         {
-            m_cItem[i] = NULL;
+            m_bItemInUse[i] = false;
+            //m_cItem[i] = NULL;
         }
     }
 
-    ~COPCGroup()
-    {
-        if (m_wcSzName != NULL)
-        {
-            delete m_wcSzName;
-            m_wcSzName = NULL;
-        }
-        for (size_t i = 0; i < ITEM_NUMBER; i++)
-        {
-            if (m_cItem[i] != NULL)
-            {
-                delete m_cItem[i];
-                m_cItem[i] = NULL;
-            }
-        }
-    }
+    //~COPCGroup()
+    //{
+    //    if (m_wcSzName != NULL)
+    //    {
+    //        delete [] m_wcSzName;
+    //        m_wcSzName = NULL;
+    //    }
+    //    for (size_t i = 0; i < ITEM_NUMBER; i++)
+    //    {
+    //        if (m_cItem[i] != NULL)
+    //        {
+    //            delete m_cItem[i];
+    //            m_cItem[i] = NULL;
+    //        }
+    //    }
+    //}
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
 
@@ -148,7 +150,6 @@ public:
 public:
     friend class COPCServer;
     int m_nSequenceIndex;
-    bool m_bInUse;
     COPCServer * m_pParent;
     LPWSTR m_wcSzName;
     bool m_bActive;
@@ -161,7 +162,10 @@ public:
 
     VARIANT * m_pvValue;
     WORD * m_pwQualities;
-    COPCItem * m_cItem[ITEM_NUMBER];
+
+    bool m_bItemInUse[ITEM_NUMBER];
+    map<int, COPCItem> m_mapIndextoItem;
+    //COPCItem * m_cItem[ITEM_NUMBER];
 
 
     // IOPCItemMgt Methods
