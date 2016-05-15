@@ -5,6 +5,7 @@
 
 
 #include "OPC_Server_i.h"
+#include "IOPCDataCallback_CP.H"
 extern IMalloc * pIMalloc;
 
 
@@ -67,7 +68,9 @@ public:
 class ATL_NO_VTABLE COPCGroup :
     public CComObjectRootEx<CComSingleThreadModel>,
     //public CComCoClass<COPCGroup, &CLSID_OPCGroup>,
-    public IDispatchImpl<IOPCItemMgt, &__uuidof(IOPCItemMgt), &LIBID_OPC_ServerLib, /* wMajor = */ 3, /* wMinor = */ 00>
+    public IDispatchImpl<IOPCItemMgt, &__uuidof(IOPCItemMgt), &LIBID_OPC_ServerLib, /* wMajor = */ 3, /* wMinor = */ 00>,
+    public IConnectionPointContainerImpl<COPCGroup>,
+    public CProxyIOPCDataCallback<COPCGroup>
     //public IDispatchImpl<IOPCGroup, &IID_IOPCGroup, &LIBID_OPC_ServerLib, /*wMajor =*/ 3, /*wMinor =*/ 00>,
 
 {
@@ -114,6 +117,7 @@ public:
 
     BEGIN_COM_MAP(COPCGroup)
         COM_INTERFACE_ENTRY(IOPCItemMgt)
+        COM_INTERFACE_ENTRY(IConnectionPointContainer)
     END_COM_MAP()
 
 
@@ -177,7 +181,28 @@ public:
     STDMETHOD(SetClientHandles)(DWORD dwCount, OPCHANDLE * phServer, OPCHANDLE * phClient, HRESULT ** ppErrors);
     STDMETHOD(SetDatatypes)(DWORD dwCount, OPCHANDLE * phServer, VARTYPE * pRequestedDatatypes, HRESULT ** ppErrors);
     STDMETHOD(CreateEnumerator)(REFIID riid, LPUNKNOWN * ppUnk);
+
+    //IOPCDataCallback
+    STDMETHOD(OnDataChange)(
+        DWORD dwTransid,
+        OPCHANDLE hGroup,
+        HRESULT hrMasterquality,
+        HRESULT hrMastererror,
+        DWORD dwCount,
+        OPCHANDLE * phClientItems,
+        VARIANT * pvValues,
+        WORD * pwQualities,
+        FILETIME * pftTimeStamps,
+        HRESULT * pErrors
+        );
+
+    STDMETHOD(FindConnectionPoint)(/* [in] */ __RPC__in REFIID riid, /* [out] */ __RPC__deref_out_opt IConnectionPoint **ppCP);
+
 private:
+public:
+    BEGIN_CONNECTION_POINT_MAP(COPCGroup)
+        CONNECTION_POINT_ENTRY(__uuidof(IOPCDataCallback))
+    END_CONNECTION_POINT_MAP()
 };
 
 //OBJECT_ENTRY_AUTO(__uuidof(OPCGroup), COPCGroup)

@@ -146,3 +146,20 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
 
     return S_OK;
 }
+
+STDMETHODIMP COPCGroup::OnDataChange(
+    DWORD dwTransid,
+    OPCHANDLE hGroup,
+    HRESULT hrMasterquality,
+    HRESULT hrMastererror,
+    DWORD dwCount,
+    OPCHANDLE * phClientItems,
+    VARIANT * pvValues,
+    WORD * pwQualities,
+    FILETIME * pftTimeStamps,
+    HRESULT * pErrors)
+{
+
+    Lock();
+    return E_NOTIMPL;
+}

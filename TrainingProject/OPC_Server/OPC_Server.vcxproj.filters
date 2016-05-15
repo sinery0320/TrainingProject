@@ -54,6 +54,9 @@
     <ClInclude Include="OPCGroup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IOPCDataCallback_CP.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OPC_Server.rc">

@@ -127,6 +127,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IOPCDataCallback_CP.H" />
     <ClInclude Include="OPCGroup.h" />
     <ClInclude Include="OPCServer.h" />
     <ClInclude Include="OPC_Server_i.h" />
