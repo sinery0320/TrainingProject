@@ -94,6 +94,15 @@ public:
             m_bItemInUse[i] = false;
             //m_cItem[i] = NULL;
         }
+
+        for (size_t i = 0; i < MAX_CONNECTION_NUMBER; i++)
+        {
+            m_dwConnectionCookies[i] = i + 1;
+            m_pConnectionIUnknown[i] = NULL;
+
+        }
+
+        m_nConnectionNumber = 0;
     }
 
     //~COPCGroup()
@@ -171,7 +180,9 @@ public:
     map<int, COPCItem> m_mapIndextoItem;
     //COPCItem * m_cItem[ITEM_NUMBER];
 
-
+    int m_nConnectionNumber;
+    DWORD m_dwConnectionCookies[MAX_CONNECTION_NUMBER];
+    IUnknown * m_pConnectionIUnknown[MAX_CONNECTION_NUMBER];
     // IOPCItemMgt Methods
 public:
     STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors);
@@ -195,6 +206,9 @@ public:
         FILETIME * pftTimeStamps,
         HRESULT * pErrors
         );
+
+    STDMETHOD(Advise)(IUnknown * pUnknownSink, DWORD * pdwCookie);
+    STDMETHOD(Unadvise)(DWORD dwCookie);
 
 
 private:

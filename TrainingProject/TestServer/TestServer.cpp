@@ -134,8 +134,17 @@ int main()
     {
         cout << "Get ConnettionPoint failed." << endl;
     }
-
-    DataCallbackSink 
+    IUnknown * pSink = (IUnknown*)CoTaskMemAlloc(sizeof(IUnknown));
+    DWORD dwCookie = 0;
+    hr = pConnectionPoint->Advise(pSink, &dwCookie);
+    if (SUCCEEDED(hr))
+    {
+        cout << "Advise successfully." << endl;
+    }
+    else
+    {
+        cout << "Advise failed." << endl;
+    }
     CoUninitialize();
     return 0;
 }
