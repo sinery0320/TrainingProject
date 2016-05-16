@@ -5,7 +5,6 @@
 #include "..\OPC_Server\OPC_Server_i.h"
 #include "..\OPC_Server\OPC_Server_i.c"
 
-
 using namespace std;
 
 
@@ -114,6 +113,29 @@ int main()
     {
         CoTaskMemFree(errorResult);
     }
+
+    IConnectionPointContainer * pConnectionPointContainer = NULL;
+    hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
+    if (SUCCEEDED(hr))
+    {
+        cout << "Get IConnectionPointContainer interface successfully." << endl;
+    }
+    else
+    {
+        cout << "Get IConnectionPointContainer interface failed." << endl;
+    }
+    IConnectionPoint * pConnectionPoint = NULL;
+    hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
+    if (SUCCEEDED(hr))
+    {
+        cout << "Get ConnettionPoint successfully." << endl;
+    }
+    else
+    {
+        cout << "Get ConnettionPoint failed." << endl;
+    }
+
+    DataCallbackSink 
     CoUninitialize();
     return 0;
 }

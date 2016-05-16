@@ -196,7 +196,6 @@ public:
         HRESULT * pErrors
         );
 
-    STDMETHOD(FindConnectionPoint)(/* [in] */ __RPC__in REFIID riid, /* [out] */ __RPC__deref_out_opt IConnectionPoint **ppCP);
 
 private:
 public:
