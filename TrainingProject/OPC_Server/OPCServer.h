@@ -5,6 +5,7 @@
 #include "opcerror.h"
 #include "OPC_Server_i.h"
 #include "OPCGroup.h"
+#include "IOPCDataCallback_CP.H"
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)
 #error "Single-threaded COM objects are not properly supported on Windows CE platform, such as the Windows Mobile platforms that do not include full DCOM support. Define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA to force ATL to support creating single-thread COM object's and allow use of it's single-threaded COM object implementations. The threading model in your rgs file was set to 'Free' as that is the only threading model supported in non DCOM Windows CE platforms."
@@ -19,7 +20,9 @@ class ATL_NO_VTABLE COPCServer :
     public CComObjectRootEx<CComSingleThreadModel>,
     public CComCoClass<COPCServer, &CLSID_OPCServer>,
     //public IDispatchImpl<IOPCServer_temp, &IID_IOPCServer_temp, &LIBID_OPC_ServerLib, /*wMajor =*/ 3, /*wMinor =*/ 00>,
-    public IDispatchImpl<IOPCServer, &IID_IOPCServer, &LIBID_OPC_ServerLib, /*wMajor =*/ 3, /*wMinor =*/ 00>
+    public IDispatchImpl<IOPCServer, &IID_IOPCServer, &LIBID_OPC_ServerLib, /*wMajor =*/ 3, /*wMinor =*/ 00>,
+    public IConnectionPointContainerImpl<COPCServer>,
+    public CProxyIOPCDataCallback<COPCServer>
     //public IDispatchImpl<IOPCServer, &__uuidof(IOPCServer), &LIBID_OPC_ServerLib, /* wMajor = */ 3, /* wMinor = */ 00>
 {
 public:
@@ -34,6 +37,7 @@ public:
         //COM_INTERFACE_ENTRY(IDispatch)
         COM_INTERFACE_ENTRY(IOPCServer)
         //COM_INTERFACE_ENTRY_AGGREGATE(IID_IOPCItemMgt, m_mapNametoGroup)
+        COM_INTERFACE_ENTRY(IConnectionPointContainer)
     END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -99,6 +103,9 @@ public:
     STDMETHOD(GetStatus)(OPCSERVERSTATUS ** ppServerStatus);
     STDMETHOD(RemoveGroup)(OPCHANDLE hServerGroup, BOOL bForce);
     STDMETHOD(CreateGroupEnumerator)(OPCENUMSCOPE dwScope, REFIID riid, LPUNKNOWN * ppUnk);
+    BEGIN_CONNECTION_POINT_MAP(COPCServer)
+        CONNECTION_POINT_ENTRY(__uuidof(IOPCDataCallback))
+    END_CONNECTION_POINT_MAP()
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(OPCServer), COPCServer)

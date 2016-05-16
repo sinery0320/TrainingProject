@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "..\OPC_Server\OPC_Server_i.h"
 #include "..\OPC_Server\OPC_Server_i.c"
+#include "OPCDataCallBackSink.h"
 
 using namespace std;
 
@@ -134,17 +135,32 @@ int main()
     {
         cout << "Get ConnettionPoint failed." << endl;
     }
-    IUnknown * pSink = (IUnknown*)CoTaskMemAlloc(sizeof(IUnknown));
+    OPCDataCallBackSink * pSink = new OPCDataCallBackSink;
     DWORD dwCookie = 0;
-    hr = pConnectionPoint->Advise(pSink, &dwCookie);
-    if (SUCCEEDED(hr))
+    if (pSink != NULL)
     {
-        cout << "Advise successfully." << endl;
+
+        hr = pConnectionPoint->Advise(pSink, &dwCookie);
+        cout << hr << endl;
+        if (SUCCEEDED(hr))
+        {
+            cout << "successfully" << endl;
+        }
+        
     }
-    else
-    {
-        cout << "Advise failed." << endl;
-    }
+    //IUnknown * pSink = (IUnknown*)CoTaskMemAlloc(sizeof(IUnknown));
+    //IUnknown * pSink = NULL;
+    //DWORD dwCookie = 0;
+    //hr = pConnectionPoint->Advise(pSink, &dwCookie);
+    //if (SUCCEEDED(hr))
+    //{
+    //    cout << "Advise successfully." << endl;
+    //}
+    //else
+    //{
+    //    cout << hr << endl;
+    //    cout << "Advise failed." << endl;
+    //}
     CoUninitialize();
     return 0;
 }

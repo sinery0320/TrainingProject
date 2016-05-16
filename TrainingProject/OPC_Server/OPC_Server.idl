@@ -1234,6 +1234,7 @@ library OPC_ServerLib
 	coclass OPCServer
 	{
 		[default] interface IOPCServer;
+        [default, source] dispinterface IOPCDataCallback;
 	};
     // OPCGroup doesn't need to provide coclass
 	//[
