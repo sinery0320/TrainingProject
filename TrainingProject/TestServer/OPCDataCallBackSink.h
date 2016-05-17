@@ -9,6 +9,8 @@ class OPCDataCallBackSink :
     //public CComObjectRoot,
     public IOPCDataCallback
 {
+private:
+    ULONG m_nRef;
 public:
     OPCDataCallBackSink();
     ~OPCDataCallBackSink();

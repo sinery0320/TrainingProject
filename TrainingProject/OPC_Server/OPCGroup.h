@@ -195,18 +195,18 @@ public:
     STDMETHOD(CreateEnumerator)(REFIID riid, LPUNKNOWN * ppUnk);
 
     //IOPCDataCallback
-    STDMETHOD(OnDataChange)(
-        DWORD dwTransid,
-        OPCHANDLE hGroup,
-        HRESULT hrMasterquality,
-        HRESULT hrMastererror,
-        DWORD dwCount,
-        OPCHANDLE * phClientItems,
-        VARIANT * pvValues,
-        WORD * pwQualities,
-        FILETIME * pftTimeStamps,
-        HRESULT * pErrors
-        );
+    //STDMETHOD(OnDataChange)(
+    //    DWORD dwTransid,
+    //    OPCHANDLE hGroup,
+    //    HRESULT hrMasterquality,
+    //    HRESULT hrMastererror,
+    //    DWORD dwCount,
+    //    OPCHANDLE * phClientItems,
+    //    VARIANT * pvValues,
+    //    WORD * pwQualities,
+    //    FILETIME * pftTimeStamps,
+    //    HRESULT * pErrors
+    //    );
 
     STDMETHOD(Advise)(
         /* [in] */ __RPC__in_opt IUnknown *pUnkSink,

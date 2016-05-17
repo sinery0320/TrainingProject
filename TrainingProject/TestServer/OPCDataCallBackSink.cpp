@@ -7,6 +7,7 @@ using namespace std;
 
 OPCDataCallBackSink::OPCDataCallBackSink()
 {
+    m_nRef = 0;
 }
 
 
@@ -16,16 +17,37 @@ OPCDataCallBackSink::~OPCDataCallBackSink()
 
 STDMETHODIMP OPCDataCallBackSink::QueryInterface(_In_ REFIID iid, _Outptr_ void** pp)
 {
-    *pp = this;
+    if (iid == IID_IUnknown)
+    {
+        *pp = static_cast<IUnknown*>(this);
+        AddRef();
+    }
+
+    else if (iid == IID_IOPCDataCallback)
+    {
+        *pp = static_cast<IOPCDataCallback*>(this);
+        AddRef();
+    }
+    else
+    {
+        *pp = NULL;
+        return E_NOINTERFACE;
+    }
     return S_OK;
 }
 ULONG __stdcall OPCDataCallBackSink::AddRef(void)
 {
-    return 1;
+    return ++m_nRef;
 }
 ULONG __stdcall OPCDataCallBackSink::Release(void)
 {
-    return 0;
+    --m_nRef;
+    if (m_nRef == 0)
+    {
+        delete this;
+        return 0;
+    }
+    return m_nRef;
 }
 STDMETHODIMP OPCDataCallBackSink::OnDataChange(
     /* [in] */ DWORD dwTransid,

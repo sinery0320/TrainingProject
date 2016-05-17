@@ -82,40 +82,6 @@ int main()
         pUnk->Release();
     }
 
-    OPCITEMDEF opcItem = {
-        NULL,
-        L"Item1",
-        TRUE,
-        0,
-        0,
-        NULL,
-        VT_R8,
-        0
-    };
-    OPCITEMRESULT * opcItemResult = NULL;
-    HRESULT * errorResult = NULL;
-    hr = pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
-    //cout << hr << endl;
-    if (SUCCEEDED(hr))
-    {
-        cout << "AddItems successfully!" << endl;
-    }
-    else
-    {
-        cout << "AddItems failed!" << endl;
-        pIOPCItemMgt->Release();
-        pIOPCServer->Release();
-        pUnk->Release();
-    }
-    if (opcItemResult != NULL)
-    {
-        CoTaskMemFree(opcItemResult);
-    }
-    if (errorResult != NULL)
-    {
-        CoTaskMemFree(errorResult);
-    }
-
     IConnectionPointContainer * pConnectionPointContainer = NULL;
     hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
     if (SUCCEEDED(hr))
@@ -148,9 +114,46 @@ int main()
         cout << hr << endl;
         if (SUCCEEDED(hr))
         {
-            cout << "successfully" << endl;
+            cout << "Advise successfully" << endl;
         }
-        
+        else
+        {
+            cout << "Advise failed" << endl;
+        }
+    }
+
+    OPCITEMDEF opcItem = {
+        NULL,
+        L"Item1",
+        TRUE,
+        0,
+        0,
+        NULL,
+        VT_R8,
+        0
+    };
+    OPCITEMRESULT * opcItemResult = NULL;
+    HRESULT * errorResult = NULL;
+    hr = pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
+    //cout << hr << endl;
+    if (SUCCEEDED(hr))
+    {
+        cout << "AddItems successfully!" << endl;
+    }
+    else
+    {
+        cout << "AddItems failed!" << endl;
+        pIOPCItemMgt->Release();
+        pIOPCServer->Release();
+        pUnk->Release();
+    }
+    if (opcItemResult != NULL)
+    {
+        CoTaskMemFree(opcItemResult);
+    }
+    if (errorResult != NULL)
+    {
+        CoTaskMemFree(errorResult);
     }
     //IUnknown * pSink = (IUnknown*)CoTaskMemAlloc(sizeof(IUnknown));
     //IUnknown * pSink = NULL;

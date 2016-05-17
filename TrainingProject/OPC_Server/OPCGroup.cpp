@@ -147,20 +147,20 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
     return S_OK;
 }
 
-STDMETHODIMP COPCGroup::OnDataChange(
-    DWORD dwTransid,
-    OPCHANDLE hGroup,
-    HRESULT hrMasterquality,
-    HRESULT hrMastererror,
-    DWORD dwCount,
-    OPCHANDLE * phClientItems,
-    VARIANT * pvValues,
-    WORD * pwQualities,
-    FILETIME * pftTimeStamps,
-    HRESULT * pErrors)
-{
-    return E_NOTIMPL;
-}
+//STDMETHODIMP COPCGroup::OnDataChange(
+//    DWORD dwTransid,
+//    OPCHANDLE hGroup,
+//    HRESULT hrMasterquality,
+//    HRESULT hrMastererror,
+//    DWORD dwCount,
+//    OPCHANDLE * phClientItems,
+//    VARIANT * pvValues,
+//    WORD * pwQualities,
+//    FILETIME * pftTimeStamps,
+//    HRESULT * pErrors)
+//{
+//    return E_NOTIMPL;
+//}
 
 STDMETHODIMP COPCGroup::Advise(
     /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
@@ -180,7 +180,8 @@ STDMETHODIMP COPCGroup::Advise(
         return CONNECT_E_ADVISELIMIT;
     }
     IID tempIID;
-    hr = pUnkSink->QueryInterface(tempIID, (void **)pSink);
+    GetConnectionInterface(&tempIID);
+    hr = pUnkSink->QueryInterface(tempIID, (void **)&pSink);
     if (FAILED(hr))
     {
         ATLTRACE(L"COPCGroup::Advise - Can't get IUnknown, returning CONNECT_E_CANNOTCONNECT");
