@@ -6,6 +6,7 @@
 #include "..\OPC_Server\OPC_Server_i.c"
 #include "OPCDataCallBackSink.h"
 
+
 using namespace std;
 
 
@@ -135,11 +136,14 @@ int main()
     {
         cout << "Get ConnettionPoint failed." << endl;
     }
-    OPCDataCallBackSink * pSink = new OPCDataCallBackSink;
+    //CComObject<OPCDataCallBackSink> * pOPCDataCallBackSink;
+    //CComObject<OPCDataCallBackSink>::CreateInstance(&pOPCDataCallBackSink);
+    OPCDataCallBackSink * pSink = NULL;
+    pSink = new OPCDataCallBackSink;
+    //pSink = (OPCDataCallBackSink *)CoTaskMemAlloc(sizeof(OPCDataCallBackSink));
     DWORD dwCookie = 0;
     if (pSink != NULL)
     {
-
         hr = pConnectionPoint->Advise(pSink, &dwCookie);
         cout << hr << endl;
         if (SUCCEEDED(hr))

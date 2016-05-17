@@ -162,9 +162,11 @@ STDMETHODIMP COPCGroup::OnDataChange(
     return E_NOTIMPL;
 }
 
-STDMETHODIMP COPCGroup::Advise(IUnknown * pUnknownSink, DWORD * pdwCookie)
+STDMETHODIMP COPCGroup::Advise(
+    /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
+    /* [out] */ __RPC__out DWORD *pdwCookie)
 {
-    if (pUnknownSink == NULL || pdwCookie == NULL)
+    if (pUnkSink == NULL || pdwCookie == NULL)
     {
         ATLTRACE(L"COPCGroup::Advise - pUnknownSink or pdwCookie is NULL, returning E_INVALIDARG");
         return E_INVALIDARG;
@@ -178,7 +180,7 @@ STDMETHODIMP COPCGroup::Advise(IUnknown * pUnknownSink, DWORD * pdwCookie)
         return CONNECT_E_ADVISELIMIT;
     }
     IID tempIID;
-    hr = pUnknownSink->QueryInterface(tempIID, (void **)pSink);
+    hr = pUnkSink->QueryInterface(tempIID, (void **)pSink);
     if (FAILED(hr))
     {
         ATLTRACE(L"COPCGroup::Advise - Can't get IUnknown, returning CONNECT_E_CANNOTCONNECT");
@@ -203,5 +205,23 @@ STDMETHODIMP COPCGroup::Advise(IUnknown * pUnknownSink, DWORD * pdwCookie)
 
 STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
 {
-    return E_NOTIMPL;
+    if (dwCookie == 0)
+    {
+        return E_INVALIDARG;
+    }
+    for (size_t i = 0; i < MAX_CONNECTION_NUMBER; i++)
+    {
+        if (dwCookie == m_dwConnectionCookies[i])
+        {
+            if (m_pConnectionIUnknown[i] != NULL)
+            {
+                m_pConnectionIUnknown[i]->Release();
+                m_pConnectionIUnknown[i] = NULL;
+            }
+            m_nConnectionNumber--;
+            return S_OK;
+        }
+    }
+    return CONNECT_E_NOCONNECTION;
+    //return E_NOTIMPL;
 }

@@ -71,6 +71,7 @@ class ATL_NO_VTABLE COPCGroup :
     public IDispatchImpl<IOPCItemMgt, &__uuidof(IOPCItemMgt), &LIBID_OPC_ServerLib, /* wMajor = */ 3, /* wMinor = */ 00>,
     public IConnectionPointContainerImpl<COPCGroup>,
     public CProxyIOPCDataCallback<COPCGroup>
+    //public IConnectionPointImpl<COPCGroup, &IID_IOPCDataCallback, CComDynamicUnkArray>
     //public IDispatchImpl<IOPCGroup, &IID_IOPCGroup, &LIBID_OPC_ServerLib, /*wMajor =*/ 3, /*wMinor =*/ 00>,
 
 {
@@ -207,8 +208,11 @@ public:
         HRESULT * pErrors
         );
 
-    STDMETHOD(Advise)(IUnknown * pUnknownSink, DWORD * pdwCookie);
-    STDMETHOD(Unadvise)(DWORD dwCookie);
+    STDMETHOD(Advise)(
+        /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
+        /* [out] */ __RPC__out DWORD *pdwCookie);
+    STDMETHOD(Unadvise)(
+        /* [in] */ DWORD dwCookie);
 
 
 private:

@@ -6,6 +6,7 @@
 using namespace ATL;
 
 class OPCDataCallBackSink :
+    //public CComObjectRoot,
     public IOPCDataCallback
 {
 public:
