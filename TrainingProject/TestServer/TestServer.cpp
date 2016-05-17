@@ -147,6 +147,7 @@ int main()
         pIOPCServer->Release();
         pUnk->Release();
     }
+    getchar();
     if (opcItemResult != NULL)
     {
         CoTaskMemFree(opcItemResult);

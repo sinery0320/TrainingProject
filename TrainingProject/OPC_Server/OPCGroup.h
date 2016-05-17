@@ -15,6 +15,56 @@ extern IMalloc * pIMalloc;
 
 using namespace ATL;
 using namespace std;
+class COPCGroup;
+class CWinHidden :
+    public CWindowImpl<CWinHidden, CWindow, CNullTraits>
+{
+    BEGIN_MSG_MAP(CWinHidden)
+        MESSAGE_HANDLER(WM_TIMER, OnTimer)
+    END_MSG_MAP()
+public:
+    CWinHidden() :m_nTimer(0), m_pFullCtrl(NULL){};
+    ~CWinHidden()
+    {
+        if (m_nTimer != 0)
+        {
+            KillTimer(m_nTimer);
+            m_nTimer = 0;
+        }
+        if (m_hWnd != NULL)
+        {
+            ::DestroyWindow(m_hWnd);
+            m_hWnd = NULL;
+        }
+    }
+    void AttachCtl(COPCGroup* pFullCtrl)
+    {
+        m_pFullCtrl = pFullCtrl;
+    }
+    BOOL SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc)
+    {
+        if (m_hWnd == NULL)
+        {
+            RECT rt = { 0, 0, 0, 0 };
+            Create(NULL, rt);
+        }
+        m_nTimer = ::SetTimer(m_hWnd, nIDEvent, uElapse, lpTimerFunc);
+        return m_nTimer == 0;
+    }
+    void KillThisTimer()
+    {
+        if (m_nTimer != 0)
+        {
+            KillTimer(m_nTimer);
+            m_nTimer = 0;
+        }
+    }
+public:
+    LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
+private:
+    COPCGroup*   m_pFullCtrl;
+    UINT        m_nTimer;
+};
 //COPCItem
 class COPCItem
 {
@@ -89,7 +139,9 @@ public:
         m_dwUpdateRate = 0;
         m_hServerGroup = 0;
         m_hClientGroup = 0;
-        
+        //m_hThread = 0;
+        //m_nElapseTime = MIN_UPDATE_RATE;
+
         for (size_t i = 0; i < ITEM_NUMBER; i++)
         {
             m_bItemInUse[i] = false;
@@ -105,25 +157,31 @@ public:
 
         m_nConnectionNumber = 0;
 
-        SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
+        //m_hThread = CreateThread(NULL, 0, ThreadFunc, (LPVOID)(&m_nElapseTime), 0, NULL);
+        //SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
+
+        m_cWinHidden.AttachCtl(this);
+        m_cWinHidden.SetThisTimer(1, MIN_UPDATE_RATE, NULL);
     }
 
-    //~COPCGroup()
-    //{
-    //    if (m_wcSzName != NULL)
-    //    {
-    //        delete [] m_wcSzName;
-    //        m_wcSzName = NULL;
-    //    }
-    //    for (size_t i = 0; i < ITEM_NUMBER; i++)
-    //    {
-    //        if (m_cItem[i] != NULL)
-    //        {
-    //            delete m_cItem[i];
-    //            m_cItem[i] = NULL;
-    //        }
-    //    }
-    //}
+    ~COPCGroup()
+    {
+        //if (m_wcSzName != NULL)
+        //{
+        //    delete [] m_wcSzName;
+        //    m_wcSzName = NULL;
+        //}
+        //for (size_t i = 0; i < ITEM_NUMBER; i++)
+        //{
+        //    if (m_cItem[i] != NULL)
+        //    {
+        //        delete m_cItem[i];
+        //        m_cItem[i] = NULL;
+        //    }
+        //}
+
+        //CloseHandle(m_hThread);
+    }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
 
@@ -176,8 +234,11 @@ public:
     OPCHANDLE m_hServerGroup;
     OPCHANDLE m_hClientGroup;
 
-    VARIANT * m_pvValue;
-    WORD * m_pwQualities;
+    VARIANT m_vValue[MAX_CONNECTION_NUMBER];
+    WORD m_wQualities[MAX_CONNECTION_NUMBER];
+    FILETIME m_ftTimeStamps[MAX_CONNECTION_NUMBER];
+    HRESULT m_hrErrors[MAX_CONNECTION_NUMBER];
+    OPCHANDLE m_hClientItem[MAX_CONNECTION_NUMBER];
 
     bool m_bItemInUse[ITEM_NUMBER];
     map<int, COPCItem> m_mapIndextoItem;
@@ -186,6 +247,11 @@ public:
     int m_nConnectionNumber;
     DWORD m_dwConnectionCookies[MAX_CONNECTION_NUMBER];
     IUnknown * m_pConnectionIUnknown[MAX_CONNECTION_NUMBER];
+
+    //HANDLE m_hThread;
+    //int m_nElapseTime;
+
+    CWinHidden m_cWinHidden;
     // IOPCItemMgt Methods
 public:
     STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors);
@@ -216,15 +282,22 @@ public:
     STDMETHOD(Unadvise)(
         /* [in] */ DWORD dwCookie);
 
-    static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+    //static DWORD WINAPI ThreadFunc(LPVOID lpParam);
+
+    //static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+    //{
+    //    if (idEvent == 1)
+    //    {
+    //        KillTimer(NULL, idEvent);
+    //        ATLTRACE(L"Timer");
+    //        //Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), hClientItems, vValues, wQualities, ftTimeStamps, Errors);
+    //        SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
+    //    }
+    //}
+    LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
-        if (idEvent == 1)
-        {
-            KillTimer(NULL, idEvent);
-            ATLTRACE(L"Timer");
-            //Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), hClientItems, vValues, wQualities, ftTimeStamps, Errors);
-            SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
-        }
+        //Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
+        return CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
     }
 
 
@@ -236,3 +309,4 @@ public:
 };
 
 //OBJECT_ENTRY_AUTO(__uuidof(OPCGroup), COPCGroup)
+

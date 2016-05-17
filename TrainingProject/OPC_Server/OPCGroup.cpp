@@ -226,3 +226,14 @@ STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
     return CONNECT_E_NOCONNECTION;
     //return E_NOTIMPL;
 }
+
+LRESULT CWinHidden::OnTimer(UINT uMsg, WPARAM wParam,
+    LPARAM lParam, BOOL& bHandled)
+{
+    if ((UINT)wParam != m_nTimer)
+        return -1;
+
+    if (m_pFullCtrl != NULL)
+        m_pFullCtrl->OnTimer(uMsg, wParam, lParam, bHandled);
+    return 0;
+}
