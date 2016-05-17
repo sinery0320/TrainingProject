@@ -104,6 +104,8 @@ public:
         }
 
         m_nConnectionNumber = 0;
+
+        SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
     }
 
     //~COPCGroup()
@@ -213,6 +215,17 @@ public:
         /* [out] */ __RPC__out DWORD *pdwCookie);
     STDMETHOD(Unadvise)(
         /* [in] */ DWORD dwCookie);
+
+    static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+    {
+        if (idEvent == 1)
+        {
+            KillTimer(NULL, idEvent);
+            ATLTRACE(L"Timer");
+            //Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), hClientItems, vValues, wQualities, ftTimeStamps, Errors);
+            SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
+        }
+    }
 
 
 private:
