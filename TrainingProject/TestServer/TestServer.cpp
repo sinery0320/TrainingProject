@@ -105,7 +105,7 @@ int main()
     //CComObject<OPCDataCallBackSink> * pOPCDataCallBackSink;
     //CComObject<OPCDataCallBackSink>::CreateInstance(&pOPCDataCallBackSink);
     OPCDataCallBackSink * pSink = NULL;
-    pSink = new OPCDataCallBackSink;
+    pSink = new OPCDataCallBackSink();
     //pSink = (OPCDataCallBackSink *)CoTaskMemAlloc(sizeof(OPCDataCallBackSink));
     DWORD dwCookie = 0;
     if (pSink != NULL)

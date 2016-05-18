@@ -56,6 +56,7 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
         }
         hOPC = stCurrentPosition;
         pNewItem = new COPCItem;
+        //pNewItem = (COPCItem*)CoTaskMemAlloc(sizeof(COPCItem));
         if (pNewItem == NULL)
         {
             ATLTRACE(L"COPCGroup::AddItems - New operation of pNewItem failed, pHr[%d] = E_OUTOFMEMORY", i);
