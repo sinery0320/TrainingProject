@@ -55,6 +55,6 @@ public:
         /* [in] */ DWORD dwTransid,
         /* [in] */ OPCHANDLE hGroup);
 
-    CString GetQualityText(UINT qnr);
+    STDMETHOD(GetQualityText)(UINT qnr, WCHAR* wcQualityText);
 };
 

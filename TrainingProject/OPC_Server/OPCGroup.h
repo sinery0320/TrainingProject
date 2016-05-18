@@ -6,8 +6,8 @@
 
 #include "OPC_Server_i.h"
 #include "IOPCDataCallback_CP.H"
-extern IMalloc * pIMalloc;
-
+#include "SignalGenerator_i.c"
+#include "SignalGenerator_i.h"
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)
 #error "Single-threaded COM objects are not properly supported on Windows CE platform, such as the Windows Mobile platforms that do not include full DCOM support. Define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA to force ATL to support creating single-thread COM object's and allow use of it's single-threaded COM object implementations. The threading model in your rgs file was set to 'Free' as that is the only threading model supported in non DCOM Windows CE platforms."
@@ -150,6 +150,13 @@ public:
 
         for (size_t i = 0; i < MAX_CONNECTION_NUMBER; i++)
         {
+            m_vValue[i].vt = VT_R8;
+            m_vValue[i].dblVal = 0.0;
+            m_wQualities[i] = 0;
+            m_ftTimeStamps[i].dwHighDateTime = 0;
+            m_ftTimeStamps[i].dwLowDateTime = 0;
+            m_hrErrors[i] = 0;
+            m_hClientItem[i] = 0;
             m_dwConnectionCookies[i] = i + 1;
             m_pConnectionIUnknown[i] = NULL;
 
@@ -181,6 +188,7 @@ public:
         //}
 
         //CloseHandle(m_hThread);
+        m_cWinHidden.KillThisTimer();
     }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
@@ -206,6 +214,7 @@ public:
         //        return E_OUTOFMEMORY;
         //    }
         //}
+        m_pSignal.CoCreateInstance(CLSID_Signal);
         return S_OK;
     }
 
@@ -219,6 +228,7 @@ public:
         //        m_cItem[i] = NULL;
         //    }
         //}
+        m_pSignal.Release();
     }
 
 public:
@@ -252,6 +262,7 @@ public:
     //int m_nElapseTime;
 
     CWinHidden m_cWinHidden;
+    CComPtr<ISignal> m_pSignal;
     // IOPCItemMgt Methods
 public:
     STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors);
@@ -297,7 +308,44 @@ public:
     LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
     {
         //Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
-        return CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
+        if (m_mapIndextoItem.size() == 0)
+        {
+            return 0;
+        }
+        DOUBLE dSignal[3] = { 0.0 };
+        int nSignal = 3;
+        LRESULT lr = 0;
+        m_pSignal->GenerateSignal(dSignal, nSignal);
+        map<int, COPCItem>::iterator iter = m_mapIndextoItem.begin();
+        for (; iter != m_mapIndextoItem.end(); iter++)
+        {
+            if (wcscmp(iter->second.m_szItemName, L"ItemY1") == 0)
+            {
+                iter->second.m_varData.dblVal = dSignal[0];
+                m_vValue[0] = iter->second.m_varData;
+            }
+            else if (wcscmp(iter->second.m_szItemName, L"ItemY2") == 0)
+            {
+                iter->second.m_varData.dblVal = dSignal[1];
+                m_vValue[1] = iter->second.m_varData;
+            }
+            else if (wcscmp(iter->second.m_szItemName, L"ItemY3") == 0)
+            {
+                iter->second.m_varData.dblVal = dSignal[2];
+                m_vValue[2] = iter->second.m_varData;
+            }
+        }
+        for (size_t i = 0; i < m_mapIndextoItem.size(); i++)
+        {
+            //m_vValue[i] = m_mapIndextoItem.find(i)->second.m_varData;
+            SYSTEMTIME st;
+            GetSystemTime(&st);
+            SystemTimeToFileTime(&st, &m_ftTimeStamps[i]);
+        }
+        lr = CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
+        Unlock();
+        return lr;
+
     }
 
 

@@ -61,13 +61,16 @@ STDMETHODIMP OPCDataCallBackSink::OnDataChange(
     /* [size_is][in] */ FILETIME *pftTimeStamps,
     /* [size_is][in] */ HRESULT *pErrors)
 {
-    SYSTEMTIME * sysTime = NULL;
+    //SYSTEMTIME sysTime;
+    cout << "Calling OnDataChange" << endl;
     for (size_t i = 0; i<dwCount; i++)
     {
         cout << pvValues[i].dblVal << endl;
-        cout << GetQualityText(pwQualities[i]) << endl;
-        FileTimeToSystemTime(&pftTimeStamps[i], sysTime);
-        cout << "UTC System Time2 (YYYY-MM-DD HH:MM:SS):" + sysTime->wYear + sysTime->wMonth + sysTime->wDay + sysTime->wHour + sysTime->wMinute + sysTime->wSecond << endl;
+        //WCHAR * wcQualityText = new WCHAR[10];
+        //GetQualityText(pwQualities[i], wcQualityText);
+        //cout << pwQualities[i] << endl;
+        //FileTimeToSystemTime(&pftTimeStamps[i], &sysTime);
+        //wprintf(L"UTC System Time2 (%u-%u-%u %u:%u:%u)\n", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
     }
     return S_OK;
     //return E_NOTIMPL;
@@ -106,42 +109,40 @@ STDMETHODIMP OPCDataCallBackSink::OnCancelComplete(
     return E_NOTIMPL;
 }
 
-CString OPCDataCallBackSink::GetQualityText(UINT qnr)
+STDMETHODIMP OPCDataCallBackSink::GetQualityText(UINT qnr, WCHAR* wcQualityText)
 {
-    CString qstr;
-
     switch (qnr)
 
     {
-    case OPC_QUALITY_BAD:           qstr = "BAD";
+    case OPC_QUALITY_BAD:           wcQualityText = L"BAD";
         break;
-    case OPC_QUALITY_UNCERTAIN:     qstr = "UNCERTAIN";
+    case OPC_QUALITY_UNCERTAIN:     wcQualityText = L"UNCERTAIN";
         break;
-    case OPC_QUALITY_GOOD:          qstr = "GOOD";
+    case OPC_QUALITY_GOOD:          wcQualityText = L"GOOD";
         break;
-    case OPC_QUALITY_NOT_CONNECTED: qstr = "NOT_CONNECTED";
+    case OPC_QUALITY_NOT_CONNECTED: wcQualityText = L"NOT_CONNECTED";
         break;
-    case OPC_QUALITY_DEVICE_FAILURE:qstr = "DEVICE_FAILURE";
+    case OPC_QUALITY_DEVICE_FAILURE:wcQualityText = L"DEVICE_FAILURE";
         break;
-    case OPC_QUALITY_SENSOR_FAILURE:qstr = "SENSOR_FAILURE";
+    case OPC_QUALITY_SENSOR_FAILURE:wcQualityText = L"SENSOR_FAILURE";
         break;
-    case OPC_QUALITY_LAST_KNOWN:    qstr = "LAST_KNOWN";
+    case OPC_QUALITY_LAST_KNOWN:    wcQualityText = L"LAST_KNOWN";
         break;
-    case OPC_QUALITY_COMM_FAILURE:  qstr = "COMM_FAILURE";
+    case OPC_QUALITY_COMM_FAILURE:  wcQualityText = L"COMM_FAILURE";
         break;
-    case OPC_QUALITY_OUT_OF_SERVICE:qstr = "OUT_OF_SERVICE";
+    case OPC_QUALITY_OUT_OF_SERVICE:wcQualityText = L"OUT_OF_SERVICE";
         break;
-    case OPC_QUALITY_LAST_USABLE:   qstr = "LAST_USABLE";
+    case OPC_QUALITY_LAST_USABLE:   wcQualityText = L"LAST_USABLE";
         break;
-    case OPC_QUALITY_SENSOR_CAL:    qstr = "SENSOR_CAL";
+    case OPC_QUALITY_SENSOR_CAL:    wcQualityText = L"SENSOR_CAL";
         break;
-    case OPC_QUALITY_EGU_EXCEEDED:  qstr = "EGU_EXCEEDED";
+    case OPC_QUALITY_EGU_EXCEEDED:  wcQualityText = L"EGU_EXCEEDED";
         break;
-    case OPC_QUALITY_SUB_NORMAL:    qstr = "SUB_NORMAL";
+    case OPC_QUALITY_SUB_NORMAL:    wcQualityText = L"SUB_NORMAL";
         break;
-    case OPC_QUALITY_LOCAL_OVERRIDE:qstr = "LOCAL_OVERRIDE";
+    case OPC_QUALITY_LOCAL_OVERRIDE:wcQualityText = L"LOCAL_OVERRIDE";
         break;
-    default:                        qstr = "UNKNOWN ERROR";
+    default:                        wcQualityText = L"UNKNOWN ERROR";
     }
-    return qstr;
+    return S_OK;
 }

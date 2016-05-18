@@ -121,20 +121,16 @@ int main()
             cout << "Advise failed" << endl;
         }
     }
-
-    OPCITEMDEF opcItem = {
-        NULL,
-        L"Item1",
-        TRUE,
-        0,
-        0,
-        NULL,
-        VT_R8,
-        0
+    //getchar();
+    Sleep(500);
+    OPCITEMDEF opcItem[3] = {
+        { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 },
+        { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 },
+        { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 }
     };
     OPCITEMRESULT * opcItemResult = NULL;
     HRESULT * errorResult = NULL;
-    hr = pIOPCItemMgt->AddItems(1, &opcItem, &opcItemResult, &errorResult);
+    hr = pIOPCItemMgt->AddItems(3, opcItem, &opcItemResult, &errorResult);
     //cout << hr << endl;
     if (SUCCEEDED(hr))
     {
