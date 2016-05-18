@@ -122,12 +122,15 @@ int main()
         }
     }
     //getchar();
-    Sleep(500);
-    OPCITEMDEF opcItem[3] = {
-        { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 },
-        { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 },
-        { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 }
-    };
+    OPCITEMDEF * opcItem = (OPCITEMDEF*)CoTaskMemAlloc(3 * sizeof(OPCITEMDEF));
+    opcItem[0] = { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 };
+    opcItem[1] = { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 };
+    opcItem[2] = { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 };
+    //OPCITEMDEF opcItem[3] = {
+    //    { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 },
+    //    { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 },
+    //    { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 }
+    //};
     OPCITEMRESULT * opcItemResult = NULL;
     HRESULT * errorResult = NULL;
     hr = pIOPCItemMgt->AddItems(3, opcItem, &opcItemResult, &errorResult);

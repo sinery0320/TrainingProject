@@ -37,28 +37,9 @@ public:
             m_hWnd = NULL;
         }
     }
-    void AttachCtl(COPCGroup* pFullCtrl)
-    {
-        m_pFullCtrl = pFullCtrl;
-    }
-    BOOL SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc)
-    {
-        if (m_hWnd == NULL)
-        {
-            RECT rt = { 0, 0, 0, 0 };
-            Create(NULL, rt);
-        }
-        m_nTimer = ::SetTimer(m_hWnd, nIDEvent, uElapse, lpTimerFunc);
-        return m_nTimer == 0;
-    }
-    void KillThisTimer()
-    {
-        if (m_nTimer != 0)
-        {
-            KillTimer(m_nTimer);
-            m_nTimer = 0;
-        }
-    }
+    void AttachCtl(COPCGroup* pFullCtrl);
+    BOOL SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc);
+    void KillThisTimer();
 public:
     LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 private:
@@ -86,15 +67,20 @@ public:
         m_pParentGroup = NULL;
         m_AsyncMask = 0;
     }
-    //~COPCItem()
-    //{
-    //    if (m_szItemName != NULL)
-    //    {
-    //        delete [] m_szItemName;
-    //        m_szItemName = NULL;
-    //    }
-    //    m_pParentGroup = NULL;
-    //}
+    ~COPCItem()
+    {
+        if (m_szItemName != NULL)
+        {
+            CoTaskMemFree(m_szItemName);
+            m_szItemName = NULL;
+        }
+        if (m_szAccessPath != NULL)
+        {
+            CoTaskMemFree(m_szAccessPath);
+            m_szAccessPath = NULL;
+        }
+        m_pParentGroup = NULL;
+    }
     //bool m_bInUse;
     bool m_bActive;
     OPCHANDLE m_hClientItem;
@@ -167,15 +153,16 @@ public:
         //m_hThread = CreateThread(NULL, 0, ThreadFunc, (LPVOID)(&m_nElapseTime), 0, NULL);
         //SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
 
-        m_cWinHidden.AttachCtl(this);
-        m_cWinHidden.SetThisTimer(1, MIN_UPDATE_RATE, NULL);
+        m_cWinHidden = new CWinHidden();
+        m_cWinHidden->AttachCtl(this);
+        m_cWinHidden->SetThisTimer(1, MIN_UPDATE_RATE, NULL);
     }
 
     ~COPCGroup()
     {
         //if (m_wcSzName != NULL)
         //{
-        //    delete [] m_wcSzName;
+        //    delete m_wcSzName;
         //    m_wcSzName = NULL;
         //}
         //for (size_t i = 0; i < ITEM_NUMBER; i++)
@@ -188,7 +175,12 @@ public:
         //}
 
         //CloseHandle(m_hThread);
-        m_cWinHidden.KillThisTimer();
+        //if (m_cWinHidden != NULL)
+        //{
+        //    m_cWinHidden->KillThisTimer();
+        //    delete m_cWinHidden;
+        //    m_cWinHidden = NULL;
+        //}
     }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
@@ -228,6 +220,12 @@ public:
         //        m_cItem[i] = NULL;
         //    }
         //}
+        //if (m_cWinHidden != NULL)
+        //{
+        //    m_cWinHidden->KillThisTimer();
+        //    delete m_cWinHidden;
+        //    m_cWinHidden = NULL;
+        //}
         m_pSignal.Release();
     }
 
@@ -261,7 +259,7 @@ public:
     //HANDLE m_hThread;
     //int m_nElapseTime;
 
-    CWinHidden m_cWinHidden;
+    CWinHidden * m_cWinHidden;
     CComPtr<ISignal> m_pSignal;
     // IOPCItemMgt Methods
 public:
@@ -305,49 +303,7 @@ public:
     //        SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
     //    }
     //}
-    LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-    {
-        //Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
-        if (m_mapIndextoItem.size() == 0)
-        {
-            return 0;
-        }
-        DOUBLE dSignal[3] = { 0.0 };
-        int nSignal = 3;
-        LRESULT lr = 0;
-        m_pSignal->GenerateSignal(dSignal, nSignal);
-        map<int, COPCItem>::iterator iter = m_mapIndextoItem.begin();
-        for (; iter != m_mapIndextoItem.end(); iter++)
-        {
-            if (wcscmp(iter->second.m_szItemName, L"ItemY1") == 0)
-            {
-                iter->second.m_varData.dblVal = dSignal[0];
-                m_vValue[0] = iter->second.m_varData;
-            }
-            else if (wcscmp(iter->second.m_szItemName, L"ItemY2") == 0)
-            {
-                iter->second.m_varData.dblVal = dSignal[1];
-                m_vValue[1] = iter->second.m_varData;
-            }
-            else if (wcscmp(iter->second.m_szItemName, L"ItemY3") == 0)
-            {
-                iter->second.m_varData.dblVal = dSignal[2];
-                m_vValue[2] = iter->second.m_varData;
-            }
-        }
-        for (size_t i = 0; i < m_mapIndextoItem.size(); i++)
-        {
-            //m_vValue[i] = m_mapIndextoItem.find(i)->second.m_varData;
-            SYSTEMTIME st;
-            GetSystemTime(&st);
-            SystemTimeToFileTime(&st, &m_ftTimeStamps[i]);
-        }
-        lr = CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
-        Unlock();
-        return lr;
-
-    }
-
+    LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
 public:

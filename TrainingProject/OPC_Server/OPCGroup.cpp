@@ -55,8 +55,8 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             continue;
         }
         hOPC = stCurrentPosition;
-        pNewItem = new COPCItem;
-        //pNewItem = (COPCItem*)CoTaskMemAlloc(sizeof(COPCItem));
+        //pNewItem = new COPCItem;
+        pNewItem = (COPCItem*)CoTaskMemAlloc(sizeof(COPCItem));
         if (pNewItem == NULL)
         {
             ATLTRACE(L"COPCGroup::AddItems - New operation of pNewItem failed, pHr[%d] = E_OUTOFMEMORY", i);
@@ -132,11 +132,22 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
 
     m_vtCanonicalDataType = VT_R8;
     m_vtRequestedDataType = m_vtCanonicalDataType;
-    m_szItemName = pOPCItemDef->szItemID;
-    m_szAccessPath = pOPCItemDef->szAccessPath;
+    m_szItemName = (WCHAR*)CoTaskMemAlloc(wcslen(pOPCItemDef->szItemID) + 1);
+    wcscpy_s(m_szItemName, wcslen(pOPCItemDef->szItemID) + 1, pOPCItemDef->szItemID);
+    if (pOPCItemDef->szAccessPath == NULL)
+    {
+        m_szAccessPath = NULL;
+    }
+    else
+    {
+        m_szAccessPath = (WCHAR*)CoTaskMemAlloc(wcslen(pOPCItemDef->szAccessPath) + 1);
+        wcscpy_s(m_szAccessPath, wcslen(pOPCItemDef->szItemID) + 1, pOPCItemDef->szAccessPath);
+    }
     m_hServerItem = hServerItem;
     m_hClientItem = pOPCItemDef->hClient;
     m_bActive = pOPCItemDef->bActive;
+    m_varData.vt = m_vtRequestedDataType;
+    m_varData.dblVal = 0.0;
     m_AsyncMask |= OPC_ODC_ANY;
 
     pOPCItemResult->hServer = m_hServerItem;
@@ -227,14 +238,85 @@ STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
     return CONNECT_E_NOCONNECTION;
     //return E_NOTIMPL;
 }
+LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    //Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
+    if (m_mapIndextoItem.size() == 0)
+    {
+        return 0;
+    }
+    DOUBLE dSignal[3] = { 0.0 };
+    int nSignal = 3;
+    LRESULT lr = 0;
+    m_pSignal->GenerateSignal(dSignal, nSignal);
+    map<int, COPCItem>::iterator iter = m_mapIndextoItem.begin();
+    for (; iter != m_mapIndextoItem.end(); iter++)
+    {
+        if (wcscmp(iter->second.m_szItemName, L"ItemY1") == 0)
+        {
+            iter->second.m_varData.dblVal = dSignal[0];
+            m_vValue[0] = iter->second.m_varData;
+        }
+        else if (wcscmp(iter->second.m_szItemName, L"ItemY2") == 0)
+        {
+            iter->second.m_varData.dblVal = dSignal[1];
+            m_vValue[1] = iter->second.m_varData;
+        }
+        else if (wcscmp(iter->second.m_szItemName, L"ItemY3") == 0)
+        {
+            iter->second.m_varData.dblVal = dSignal[2];
+            m_vValue[2] = iter->second.m_varData;
+        }
+    }
+    for (size_t i = 0; i < m_mapIndextoItem.size(); i++)
+    {
+        //m_vValue[i] = m_mapIndextoItem.find(i)->second.m_varData;
+        SYSTEMTIME st;
+        GetSystemTime(&st);
+        SystemTimeToFileTime(&st, &m_ftTimeStamps[i]);
+    }
+    lr = CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
+    Unlock();
+    return lr;
 
+}
+
+
+
+
+//CWinHidden
+void CWinHidden::AttachCtl(COPCGroup* pFullCtrl)
+{
+    m_pFullCtrl = pFullCtrl;
+}
+BOOL CWinHidden::SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc)
+{
+    if (m_hWnd == NULL)
+    {
+        RECT rt = { 0, 0, 0, 0 };
+        Create(NULL, rt);
+    }
+    m_nTimer = ::SetTimer(m_hWnd, nIDEvent, uElapse, lpTimerFunc);
+    return m_nTimer == 0;
+}
+void CWinHidden::KillThisTimer()
+{
+    if (m_nTimer != 0)
+    {
+        KillTimer(m_nTimer);
+        m_nTimer = 0;
+    }
+}
 LRESULT CWinHidden::OnTimer(UINT uMsg, WPARAM wParam,
     LPARAM lParam, BOOL& bHandled)
 {
     if ((UINT)wParam != m_nTimer)
         return -1;
-
+    KillTimer(m_nTimer);
     if (m_pFullCtrl != NULL)
+    {
         m_pFullCtrl->OnTimer(uMsg, wParam, lParam, bHandled);
+    }
+    m_nTimer = ::SetTimer(m_hWnd, 1, MIN_UPDATE_RATE, NULL);
     return 0;
 }
