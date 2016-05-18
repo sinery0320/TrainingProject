@@ -111,7 +111,7 @@ int main()
     if (pSink != NULL)
     {
         hr = pConnectionPoint->Advise(pSink, &dwCookie);
-        cout << hr << endl;
+        //cout << hr << endl;
         if (SUCCEEDED(hr))
         {
             cout << "Advise successfully" << endl;
@@ -147,13 +147,21 @@ int main()
         pUnk->Release();
     }
     getchar();
+    pConnectionPoint->Unadvise(dwCookie);
     if (opcItemResult != NULL)
     {
         CoTaskMemFree(opcItemResult);
+        opcItemResult = NULL;
     }
     if (errorResult != NULL)
     {
         CoTaskMemFree(errorResult);
+        errorResult = NULL;
+    }
+    if (opcItem != NULL)
+    {
+        CoTaskMemFree(opcItem);
+        opcItem = NULL;
     }
     //IUnknown * pSink = (IUnknown*)CoTaskMemAlloc(sizeof(IUnknown));
     //IUnknown * pSink = NULL;
