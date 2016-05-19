@@ -51,6 +51,7 @@ int main()
     else
     {
         cout << "OPCServer Initialization failed!" << endl;
+        return -1;
     }
 
     hr = pUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&pIOPCServer);
@@ -62,6 +63,7 @@ int main()
     {
         cout << "Get OPCServer interface failed!" << endl;
         pUnk->Release();
+        return -1;
     }
     
     LONG lTimeBias = 0;
@@ -80,6 +82,7 @@ int main()
         cout << "Call AddGroup function failed!" << endl;
         pIOPCServer->Release();
         pUnk->Release();
+        return -1;
     }
 
     IConnectionPointContainer * pConnectionPointContainer = NULL;
@@ -91,6 +94,7 @@ int main()
     else
     {
         cout << "Get IConnectionPointContainer interface failed." << endl;
+        return -1;
     }
     IConnectionPoint * pConnectionPoint = NULL;
     hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
@@ -101,6 +105,7 @@ int main()
     else
     {
         cout << "Get ConnettionPoint failed." << endl;
+        return -1;
     }
     //CComObject<OPCDataCallBackSink> * pOPCDataCallBackSink;
     //CComObject<OPCDataCallBackSink>::CreateInstance(&pOPCDataCallBackSink);
@@ -119,6 +124,7 @@ int main()
         else
         {
             cout << "Advise failed" << endl;
+            return -1;
         }
     }
     //getchar();
@@ -145,6 +151,7 @@ int main()
         pIOPCItemMgt->Release();
         pIOPCServer->Release();
         pUnk->Release();
+        return -1;
     }
     getchar();
     pConnectionPoint->Unadvise(dwCookie);
