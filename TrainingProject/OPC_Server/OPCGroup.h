@@ -18,8 +18,10 @@
 
 using namespace ATL;
 using namespace std;
+
 class COPCGroup;
-// Hidden timer window.
+
+// Class of Hidden timer window
 class CWinHidden :
     public CWindowImpl<CWinHidden, CWindow, CNullTraits>
 {
@@ -41,26 +43,22 @@ public:
             m_hWnd = NULL;
         }
     }
-
     void AttachCtl(COPCGroup* pFullCtrl);
     BOOL SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc);
     void KillThisTimer();
     LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 private:
-    // Timer binding control.
-    COPCGroup * m_pFullCtrl;
-    // Timer ID
-    UINT m_nTimer;
+    COPCGroup * m_pFullCtrl;    // Timer binding control
+    UINT m_nTimer;              // Timer ID
 };
 
-//COPCItem
+// Class of COPCItem
 class COPCItem
 {
 public:
     friend class COPCGroup;
     COPCItem()
     {
-        //m_bInUse = false;
         m_bActive = false;
         m_hClientItem = 0;
         m_hServerItem = 0;
@@ -87,25 +85,24 @@ public:
         }
         m_pParentGroup = NULL;
     }
-    //bool m_bInUse;
-    bool m_bActive;
-    OPCHANDLE m_hClientItem;
-    OPCHANDLE m_hServerItem;// Sequence of item in group
-    VARTYPE m_vtCanonicalDataType;
-    VARTYPE m_vtRequestedDataType;
-    WCHAR * m_szItemName;
-    WCHAR * m_szAccessPath;
+    bool m_bActive;                 // Active flag
+    OPCHANDLE m_hClientItem;        // Handle of Client
+    OPCHANDLE m_hServerItem;        // Handle of Server
+    VARTYPE m_vtCanonicalDataType;  // Canonical data type
+    VARTYPE m_vtRequestedDataType;  // Requested data type
+    WCHAR * m_szItemName;           // Item name
+    WCHAR * m_szAccessPath;         // Access path
 
-    VARIANT m_varData;
+    VARIANT m_varData;              // Data of item
     //FILETIME m_ftTimeStamp;
-    COPCGroup * m_pParentGroup;
+    COPCGroup * m_pParentGroup;     // Pointer of parent group
 
-
+public:
+    // InitItem - Initialize item.
     HRESULT InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCITEMRESULT * pOPCItemResult);
 };
 
-// COPCGroup
-
+// Class of COPCGroup
 class ATL_NO_VTABLE COPCGroup :
     public CComObjectRootEx<CComSingleThreadModel>,
     //public CComCoClass<COPCGroup, &CLSID_OPCGroup>,
@@ -120,7 +117,6 @@ public:
     COPCGroup()
     {
         m_nSequenceIndex = 0;
-        //m_bItemInUse = false;
         m_pParent = NULL;
         m_wcSzName = 0;
         m_bActive = false;
@@ -130,13 +126,10 @@ public:
         m_dwUpdateRate = 0;
         m_hServerGroup = 0;
         m_hClientGroup = 0;
-        //m_hThread = 0;
-        //m_nElapseTime = MIN_UPDATE_RATE;
 
         for (size_t i = 0; i < ITEM_NUMBER; i++)
         {
             m_bItemInUse[i] = false;
-            //m_cItem[i] = NULL;
         }
 
         for (size_t i = 0; i < MAX_CONNECTION_NUMBER; i++)
@@ -150,11 +143,10 @@ public:
             m_hClientItem[i] = 0;
             m_dwConnectionCookies[i] = i + 1;
             m_pConnectionIUnknown[i] = NULL;
-
         }
-
         m_nConnectionNumber = 0;
 
+        // Other tries of timer
         //m_hThread = CreateThread(NULL, 0, ThreadFunc, (LPVOID)(&m_nElapseTime), 0, NULL);
         //SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
 
@@ -189,13 +181,10 @@ public:
     }
     //DECLARE_REGISTRY_RESOURCEID(IDR_OPCGROUP)
 
-
     BEGIN_COM_MAP(COPCGroup)
         COM_INTERFACE_ENTRY(IOPCItemMgt)
         COM_INTERFACE_ENTRY(IConnectionPointContainer)
     END_COM_MAP()
-
-
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
 
@@ -236,36 +225,32 @@ public:
 
 public:
     friend class COPCServer;
-    int m_nSequenceIndex;
-    COPCServer * m_pParent;
-    LPWSTR m_wcSzName;
-    bool m_bActive;
-    LONG m_lTimeBias;
-    FLOAT m_percentDeadband;
-    DWORD m_dwLCID;
-    DWORD m_dwUpdateRate;
-    OPCHANDLE m_hServerGroup;
-    OPCHANDLE m_hClientGroup;
+    int m_nSequenceIndex;                                   // Index of group in server
+    COPCServer * m_pParent;                                 // Pointer to parent server
+    LPWSTR m_wcSzName;                                      // Group name
+    bool m_bActive;                                         // Active flag
+    LONG m_lTimeBias;                                       // Time Bias
+    FLOAT m_percentDeadband;                                // Deadband
+    DWORD m_dwLCID;                                         // Language ID
+    DWORD m_dwUpdateRate;                                   // Update rate
+    OPCHANDLE m_hServerGroup;                               // Handle of server
+    OPCHANDLE m_hClientGroup;                               // Handle of group
 
-    VARIANT m_vValue[MAX_CONNECTION_NUMBER];
-    WORD m_wQualities[MAX_CONNECTION_NUMBER];
-    FILETIME m_ftTimeStamps[MAX_CONNECTION_NUMBER];
-    HRESULT m_hrErrors[MAX_CONNECTION_NUMBER];
-    OPCHANDLE m_hClientItem[MAX_CONNECTION_NUMBER];
+    VARIANT m_vValue[MAX_CONNECTION_NUMBER];                // Values
+    WORD m_wQualities[MAX_CONNECTION_NUMBER];               // Qualities
+    FILETIME m_ftTimeStamps[MAX_CONNECTION_NUMBER];         // TimeStamps
+    HRESULT m_hrErrors[MAX_CONNECTION_NUMBER];              // Errors
+    OPCHANDLE m_hClientItem[MAX_CONNECTION_NUMBER];         // Handle of item client
 
-    bool m_bItemInUse[ITEM_NUMBER];
-    map<int, COPCItem> m_mapIndextoItem;
-    //COPCItem * m_cItem[ITEM_NUMBER];
+    bool m_bItemInUse[ITEM_NUMBER];                         // In use flag
+    map<int, COPCItem> m_mapIndextoItem;                    // int to item map(name can be the same, but index can't)
 
-    int m_nConnectionNumber;
-    DWORD m_dwConnectionCookies[MAX_CONNECTION_NUMBER];
-    IUnknown * m_pConnectionIUnknown[MAX_CONNECTION_NUMBER];
+    int m_nConnectionNumber;                                // Active connection number
+    DWORD m_dwConnectionCookies[MAX_CONNECTION_NUMBER];     // Connections cookies
+    IUnknown * m_pConnectionIUnknown[MAX_CONNECTION_NUMBER];// Connections IUnknown interface
 
-    //HANDLE m_hThread;
-    //int m_nElapseTime;
-
-    CWinHidden * m_cWinHidden;
-    CComPtr<ISignal> m_pSignal;
+    CWinHidden * m_cWinHidden;                              // Pointer of Hidden timer window
+    CComPtr<ISignal> m_pSignal;                             // Smart pointer of ISignal
     // IOPCItemMgt Methods
 public:
     STDMETHOD(AddItems)(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors);
@@ -275,29 +260,14 @@ public:
     STDMETHOD(SetClientHandles)(DWORD dwCount, OPCHANDLE * phServer, OPCHANDLE * phClient, HRESULT ** ppErrors);
     STDMETHOD(SetDatatypes)(DWORD dwCount, OPCHANDLE * phServer, VARTYPE * pRequestedDatatypes, HRESULT ** ppErrors);
     STDMETHOD(CreateEnumerator)(REFIID riid, LPUNKNOWN * ppUnk);
-
-    //IOPCDataCallback
-    //STDMETHOD(OnDataChange)(
-    //    DWORD dwTransid,
-    //    OPCHANDLE hGroup,
-    //    HRESULT hrMasterquality,
-    //    HRESULT hrMastererror,
-    //    DWORD dwCount,
-    //    OPCHANDLE * phClientItems,
-    //    VARIANT * pvValues,
-    //    WORD * pwQualities,
-    //    FILETIME * pftTimeStamps,
-    //    HRESULT * pErrors
-    //    );
-
     STDMETHOD(Advise)(
         /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
         /* [out] */ __RPC__out DWORD *pdwCookie);
     STDMETHOD(Unadvise)(
         /* [in] */ DWORD dwCookie);
 
+    // Other tries of timer
     //static DWORD WINAPI ThreadFunc(LPVOID lpParam);
-
     //static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
     //{
     //    if (idEvent == 1)
@@ -308,9 +278,10 @@ public:
     //        SetTimer(NULL, 1, MIN_UPDATE_RATE, TimerProc);
     //    }
     //}
+
+    // OnTimer - Timer response function.
     LRESULT OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
-private:
 public:
     BEGIN_CONNECTION_POINT_MAP(COPCGroup)
         CONNECTION_POINT_ENTRY(__uuidof(IOPCDataCallback))

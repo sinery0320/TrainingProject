@@ -4,7 +4,7 @@
 #include "OPCGroup.h"
 
 
-// COPCGroup
+// COPCGroup::AddItems - Add items to group.
 STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEMRESULT ** ppAddResults, HRESULT ** ppErrors)
 {
     // Add your function implementation here.
@@ -33,20 +33,21 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
 
     //*ppAddResults = pItemResult;
     //*ppErrors = pHr;
-    // for every item needs to be added
+
+    // For every item needs to be added
     for (size_t i = 0; i < dwCount; i++)
     {
         size_t stCurrentPosition;
-        // check available resource
+        // Check available resource
         pHr[i] = S_OK;
         for (stCurrentPosition = 0; stCurrentPosition < ITEM_NUMBER; stCurrentPosition++)
         {
-            //if (m_cItem[stCurrentPosition]->m_bInUse == false)
             if (m_bItemInUse[stCurrentPosition] == false)
             {
                 break;
             }
         }
+        // No resources
         if (stCurrentPosition >= ITEM_NUMBER)
         {
             ATLTRACE(L"COPCGroup::AddItems - No avaliable item resource, pHr[%d] = E_OUTOFMEMORY", i);
@@ -54,6 +55,7 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             bSuccess = false;
             continue;
         }
+        // Set server handle
         hOPC = stCurrentPosition;
         //pNewItem = new COPCItem;
         pNewItem = (COPCItem*)CoTaskMemAlloc(sizeof(COPCItem));
@@ -64,6 +66,7 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             bSuccess = false;
             continue;
         }
+        // Initialize item
         pHr[i] = pNewItem->InitItem(hOPC, &pItemArray[i], &pItemResult[i]);
         if (FAILED(pHr[i]))
         {
@@ -71,6 +74,7 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             bSuccess = false;
             continue;
         }
+        // Set in use flag
         m_bItemInUse[stCurrentPosition] = true;
         if (m_mapIndextoItem.find(stCurrentPosition) != m_mapIndextoItem.end())
         {
@@ -79,9 +83,12 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
             bSuccess = false;
             continue;
         }
+        // Set parent group
         pNewItem->m_pParentGroup = this;
+        // Add new item to map
         m_mapIndextoItem[stCurrentPosition] = *pNewItem;
     }
+    // Set results and errors
     *ppAddResults = pItemResult;
     *ppErrors = pHr;
     if (bSuccess == true)
@@ -158,21 +165,6 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
     return S_OK;
 }
 
-//STDMETHODIMP COPCGroup::OnDataChange(
-//    DWORD dwTransid,
-//    OPCHANDLE hGroup,
-//    HRESULT hrMasterquality,
-//    HRESULT hrMastererror,
-//    DWORD dwCount,
-//    OPCHANDLE * phClientItems,
-//    VARIANT * pvValues,
-//    WORD * pwQualities,
-//    FILETIME * pftTimeStamps,
-//    HRESULT * pErrors)
-//{
-//    return E_NOTIMPL;
-//}
-
 STDMETHODIMP COPCGroup::Advise(
     /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
     /* [out] */ __RPC__out DWORD *pdwCookie)
@@ -239,7 +231,6 @@ STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
 }
 LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    //Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
     if (m_mapIndextoItem.size() == 0)
     {
         return 0;
@@ -279,9 +270,6 @@ LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandl
     return lr;
 
 }
-
-
-
 
 //CWinHidden
 void CWinHidden::AttachCtl(COPCGroup* pFullCtrl)

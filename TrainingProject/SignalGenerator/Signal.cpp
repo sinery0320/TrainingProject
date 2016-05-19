@@ -6,10 +6,10 @@
 
 // CSignal
 
-
-// LONG* pdCurrentSignalValue: Array to store signals
+// CSignal::GenerateSignal - Generate signals.
+// DOUBLE* pdCurrentSignalValue: Array to store signals
 // LONG nSignal: Number of signals
-STDMETHODIMP CSignal::GenerateSignal(DOUBLE* pdCurrentSignalValue, LONG nSignal)
+STDMETHODIMP CSignal::GenerateSignal(/* [out] */DOUBLE* pdCurrentSignalValue, /* [in] */LONG nSignal)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -70,7 +70,7 @@ double CSignal::GenerateSignalY3(clock_t lCurrentRunTime)
     int K3 = 50;
     int T3 = 12000;
     double flag = 1.0 * (lCurrentRunTime % T3) / T3;
-    // Calculate cycle.
+    // Calculate cycle
     int N = (lCurrentRunTime + T3 / 2) / T3;
     if (flag >= 0 && flag < 0.5)
     {
