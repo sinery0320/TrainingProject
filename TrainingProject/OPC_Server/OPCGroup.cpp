@@ -148,7 +148,6 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
     m_bActive = pOPCItemDef->bActive;
     m_varData.vt = m_vtRequestedDataType;
     m_varData.dblVal = 0.0;
-    m_AsyncMask |= OPC_ODC_ANY;
 
     pOPCItemResult->hServer = m_hServerItem;
     pOPCItemResult->vtCanonicalDataType = m_vtCanonicalDataType;

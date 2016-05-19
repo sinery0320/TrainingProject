@@ -12,6 +12,7 @@ class CProxyIOPCDataCallback :
 public:
 	HRESULT Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
 	{
+        // Original code.
 		//HRESULT hr = S_OK;
 		//T * pThis = static_cast<T *>(this);
 		//int cConnections = m_vec.GetSize();
@@ -30,24 +31,31 @@ public:
 		//	}
 		//}
 		//return hr;
+
+        // Custom new code.
         HRESULT hr = S_OK;
         T * pThis = static_cast<T *>(this);
 
+        // Get number of connections.
         int cConnections = pThis->m_nConnectionNumber;
+        // Fire OnDataChange for every connection.
         for (size_t iConnection = 0; iConnection < cConnections; iConnection++)
         {
             pThis->Lock();
+            // Get IUnknown pointer of connection.
             CComPtr<IUnknown> punkConnection = pThis->m_pConnectionIUnknown[iConnection];
             pThis->Unlock();
-
+            // Convert IUnknown pointer to IOPCDataCallback pointer.
             IOPCDataCallback * pConnection = static_cast<IOPCDataCallback *>(punkConnection.p);
             if (pConnection)
             {
+                // Call IOPCDataCallback's OnDataChange function.
                 hr = pConnection->OnDataChange(dwTransid, hGroup, hrMasterquality, hrMastererror, dwCount, phClientItems, pvValues, pwQualities, pftTimeStamps, pErrors);
             }
         }
         return hr;
 	}
+    // Auto-generated code.
 	HRESULT Fire_OnReadComplete(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
 	{
 		HRESULT hr = S_OK;
@@ -69,6 +77,7 @@ public:
 		}
 		return hr;
 	}
+    // Auto-generated code.
 	HRESULT Fire_OnWriteComplete(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMastererr, DWORD dwCount, OPCHANDLE * pClienthandles, HRESULT * pErrors)
 	{
 		HRESULT hr = S_OK;
@@ -90,6 +99,7 @@ public:
 		}
 		return hr;
 	}
+    // Auto-generated code.
 	HRESULT Fire_OnCancelComplete(DWORD dwTransid, OPCHANDLE hGroup)
 	{
 		HRESULT hr = S_OK;

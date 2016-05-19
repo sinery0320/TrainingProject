@@ -351,18 +351,28 @@ void COPC_ClientDlg::DrawPic(int index)
     MemDC.Rectangle(m_CRect);
     MemDC.SelectObject(pOldBrush);
     newBrush.DeleteObject();
-    newPen.CreatePen(PS_SOLID, 2, RGB((index == 1) * 255, (index == 2) * 255, (index == 3) * 255));
+    newPen.CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+    pOldPen = MemDC.SelectObject(&newPen);
+    MemDC.MoveTo(0, height / 2);
+    MemDC.LineTo(width, height / 2);
+    MemDC.MoveTo(0, 0.1 * height);
+    MemDC.LineTo(width, 0.1 * height);
+    MemDC.MoveTo(0, 0.9 * height);
+    MemDC.LineTo(width, 0.9 * height);
+    MemDC.SelectObject(pOldPen);
+    newPen.DeleteObject();
+    newPen.CreatePen(PS_SOLID, 2, RGB((index == 1 || index ==2) * 255, (index == 2 || index == 3) * 255, (index == 1 || index == 3) * 255));
     pOldPen = MemDC.SelectObject(&newPen);
 
     int nScale = 100;
-    int nPointCount = 200;
+    int nPointCount = 240;
     if (m_listY[index - 1].size() > 0)
     {
         if (m_listY[index - 1].size() > nPointCount)
         {
             for (size_t i = 0; i < m_listY[index - 1].size() - nPointCount; i++)
             {
-                m_listY[index - 1].remove(0);
+                m_listY[index - 1].erase(m_listY[index - 1].begin());
             }
         }
         int nXCount = 0;
@@ -371,11 +381,11 @@ void COPC_ClientDlg::DrawPic(int index)
         for (list<double>::iterator iter = m_listY[index - 1].begin(); iter != iterEnd;)
         {
             int nXSource = nXCount * width / nPointCount;
-            int nYSource = (*iter + nScale / 2) * height / nScale;
+            int nYSource = (*iter * 0.8 + nScale / 2) * height / nScale;
             iter++;
             nXCount++;
             int nXDest = nXCount * width / nPointCount;
-            int nYDest = (*iter + nScale / 2) * height / nScale;
+            int nYDest = (*iter * 0.8 + nScale / 2) * height / nScale;
             MemDC.MoveTo(nXSource, height - nYSource);
             MemDC.LineTo(nXDest, height - nYDest);
         }

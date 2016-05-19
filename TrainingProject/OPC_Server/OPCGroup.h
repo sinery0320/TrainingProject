@@ -3,11 +3,14 @@
 #pragma once
 #include "resource.h"       // main symbols
 
-
 #include "OPC_Server_i.h"
 #include "IOPCDataCallback_CP.H"
 #include "SignalGenerator_i.c"
 #include "SignalGenerator_i.h"
+
+#define ITEM_NUMBER                     10
+#define MIN_UPDATE_RATE                 200
+#define MAX_CONNECTION_NUMBER           10
 
 #if defined(_WIN32_WCE) && !defined(_CE_DCOM) && !defined(_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA)
 #error "Single-threaded COM objects are not properly supported on Windows CE platform, such as the Windows Mobile platforms that do not include full DCOM support. Define _CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA to force ATL to support creating single-thread COM object's and allow use of it's single-threaded COM object implementations. The threading model in your rgs file was set to 'Free' as that is the only threading model supported in non DCOM Windows CE platforms."
@@ -16,6 +19,7 @@
 using namespace ATL;
 using namespace std;
 class COPCGroup;
+// Hidden timer window.
 class CWinHidden :
     public CWindowImpl<CWinHidden, CWindow, CNullTraits>
 {
@@ -37,15 +41,18 @@ public:
             m_hWnd = NULL;
         }
     }
+
     void AttachCtl(COPCGroup* pFullCtrl);
     BOOL SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc);
     void KillThisTimer();
-public:
     LRESULT OnTimer(UINT, WPARAM, LPARAM, BOOL&);
 private:
-    COPCGroup*   m_pFullCtrl;
-    UINT        m_nTimer;
+    // Timer binding control.
+    COPCGroup * m_pFullCtrl;
+    // Timer ID
+    UINT m_nTimer;
 };
+
 //COPCItem
 class COPCItem
 {
@@ -65,7 +72,6 @@ public:
         //m_ftTimeStamp.dwHighDateTime = 0;
         //m_ftTimeStamp.dwLowDateTime = 0;
         m_pParentGroup = NULL;
-        m_AsyncMask = 0;
     }
     ~COPCItem()
     {
@@ -92,7 +98,6 @@ public:
 
     VARIANT m_varData;
     //FILETIME m_ftTimeStamp;
-    WORD m_AsyncMask;
     COPCGroup * m_pParentGroup;
 
 
