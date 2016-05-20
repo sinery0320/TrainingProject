@@ -9,7 +9,7 @@
 
 using namespace std;
 
-
+// Console application for testing server
 int main()
 {
     //IMalloc * pIMalloc;

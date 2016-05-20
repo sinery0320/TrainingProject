@@ -10,6 +10,7 @@ class CProxyIOPCDataCallback :
 	public ATL::IConnectionPointImpl<T, &__uuidof(IOPCDataCallback)>
 {
 public:
+    // CProxyIOPCDataCallback::Fire_OnDataChange - Fire client's OnDataChange function.
 	HRESULT Fire_OnDataChange(DWORD dwTransid, OPCHANDLE hGroup, HRESULT hrMasterquality, HRESULT hrMastererror, DWORD dwCount, OPCHANDLE * phClientItems, VARIANT * pvValues, WORD * pwQualities, FILETIME * pftTimeStamps, HRESULT * pErrors)
 	{
         // Original code.

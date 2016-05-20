@@ -16,7 +16,6 @@ using namespace ATL;
 using namespace std;
 
 // COPCServer
-
 class ATL_NO_VTABLE COPCServer :
     public CComObjectRootEx<CComSingleThreadModel>,
     public CComCoClass<COPCServer, &CLSID_OPCServer>,
@@ -31,7 +30,6 @@ public:
     {
     }
     DECLARE_REGISTRY_RESOURCEID(IDR_OPCSERVER)
-
 
     BEGIN_COM_MAP(COPCServer)
         //COM_INTERFACE_ENTRY(IOPCServer_temp)
@@ -92,9 +90,9 @@ public:
 
 public:
     friend class COPCGroup;
-    map<wstring, CComObject<COPCGroup>> m_mapNametoGroup;
+    map<wstring, CComObject<COPCGroup>> m_mapNametoGroup;   // Map from ID to COPCGroup
     //CComObject<COPCGroup> * m_pGroupObject[GROUP_NUMBER];
-    bool m_bGroupInUse[GROUP_NUMBER];
+    bool m_bGroupInUse[GROUP_NUMBER];                       // In use flag
 
     // IOPCServer Methods
 public:

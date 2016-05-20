@@ -131,7 +131,7 @@ STDMETHODIMP COPCGroup::CreateEnumerator(REFIID riid, LPUNKNOWN * ppUnk)
     // Add your function implementation here.
     return E_NOTIMPL;
 }
-
+// COPCItem::InitItem - Initialize new item.
 HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCITEMRESULT * pOPCItemResult)
 {
     HRESULT hr;
@@ -165,6 +165,7 @@ HRESULT COPCItem::InitItem(OPCHANDLE hServerItem, OPCITEMDEF * pOPCItemDef, OPCI
     return S_OK;
 }
 
+// COPCGroup::Advise - Advise connection point.
 STDMETHODIMP COPCGroup::Advise(
     /* [in] */ __RPC__in_opt IUnknown *pUnkSink,
     /* [out] */ __RPC__out DWORD *pdwCookie)
@@ -177,11 +178,13 @@ STDMETHODIMP COPCGroup::Advise(
     IUnknown * pSink = NULL;
     *pdwCookie = 0;
     HRESULT hr = S_OK;
+    // Max connections
     if (m_nConnectionNumber == MAX_CONNECTION_NUMBER)
     {
         ATLTRACE(L"COPCGroup::Advise - Max connections, returning CONNECT_E_ADVISELIMIT");
         return CONNECT_E_ADVISELIMIT;
     }
+    // Get current connection IUKnown interface IID
     IID tempIID;
     GetConnectionInterface(&tempIID);
     hr = pUnkSink->QueryInterface(tempIID, (void **)&pSink);
@@ -190,6 +193,7 @@ STDMETHODIMP COPCGroup::Advise(
         ATLTRACE(L"COPCGroup::Advise - Can't get IUnknown, returning CONNECT_E_CANNOTCONNECT");
         return CONNECT_E_CANNOTCONNECT;
     }
+    // Find the store position
     int currentPosition = 0;
     for (; currentPosition < MAX_CONNECTION_NUMBER; currentPosition++)
     {
@@ -199,6 +203,7 @@ STDMETHODIMP COPCGroup::Advise(
         }
     }
     Lock();
+    // Save connection information
     m_pConnectionIUnknown[currentPosition] = pSink;
     *pdwCookie = m_dwConnectionCookies[currentPosition];
     ++m_nConnectionNumber;
@@ -206,13 +211,14 @@ STDMETHODIMP COPCGroup::Advise(
     return S_OK;
     //return E_NOTIMPL;
 }
-
+// COPCGroup::Unadvise - Unadvise of connection point.
 STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
 {
     if (dwCookie == 0)
     {
         return E_INVALIDARG;
     }
+    // Find specific connection
     for (size_t i = 0; i < MAX_CONNECTION_NUMBER; i++)
     {
         if (dwCookie == m_dwConnectionCookies[i])
@@ -229,8 +235,10 @@ STDMETHODIMP COPCGroup::Unadvise(DWORD dwCookie)
     return CONNECT_E_NOCONNECTION;
     //return E_NOTIMPL;
 }
+// COPCGroup::OnTimer - WM_TIMER response function, used to get value from signal generator.
 LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+    // No item
     if (m_mapIndextoItem.size() == 0)
     {
         return 0;
@@ -238,8 +246,10 @@ LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandl
     DOUBLE dSignal[3] = { 0.0 };
     int nSignal = 3;
     LRESULT lr = 0;
+    // Get signal
     m_pSignal->GenerateSignal(dSignal, nSignal);
     map<int, COPCItem>::iterator iter = m_mapIndextoItem.begin();
+    // Set every item's value
     for (; iter != m_mapIndextoItem.end(); iter++)
     {
         if (wcscmp(iter->second.m_szItemName, L"ItemY1") == 0)
@@ -258,6 +268,7 @@ LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandl
             m_vValue[2] = iter->second.m_varData;
         }
     }
+    // Set time stamp
     for (size_t i = 0; i < m_mapIndextoItem.size(); i++)
     {
         //m_vValue[i] = m_mapIndextoItem.find(i)->second.m_varData;
@@ -265,17 +276,19 @@ LRESULT COPCGroup::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandl
         GetSystemTime(&st);
         SystemTimeToFileTime(&st, &m_ftTimeStamps[i]);
     }
+    // Call Fire_OnDataChange
     lr = CProxyIOPCDataCallback::Fire_OnDataChange(0, m_hClientGroup, S_OK, S_OK, m_mapIndextoItem.size(), m_hClientItem, m_vValue, m_wQualities, m_ftTimeStamps, m_hrErrors);
     Unlock();
     return lr;
 
 }
 
-//CWinHidden
+// CWinHidden::AttachCtl - Attach timer with control.
 void CWinHidden::AttachCtl(COPCGroup* pFullCtrl)
 {
     m_pFullCtrl = pFullCtrl;
 }
+// CWinHidden::SetThisTimer - Set timer.
 BOOL CWinHidden::SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc)
 {
     if (m_hWnd == NULL)
@@ -286,6 +299,7 @@ BOOL CWinHidden::SetThisTimer(UINT nIDEvent, UINT uElapse, TIMERPROC lpTimerFunc
     m_nTimer = ::SetTimer(m_hWnd, nIDEvent, uElapse, lpTimerFunc);
     return m_nTimer == 0;
 }
+// CWinHidden::KillThisTimer - Kill timer.
 void CWinHidden::KillThisTimer()
 {
     if (m_nTimer != 0)
@@ -294,16 +308,19 @@ void CWinHidden::KillThisTimer()
         m_nTimer = 0;
     }
 }
+// CWinHidden::OnTimer - On timer
 LRESULT CWinHidden::OnTimer(UINT uMsg, WPARAM wParam,
     LPARAM lParam, BOOL& bHandled)
 {
     if ((UINT)wParam != m_nTimer)
         return -1;
+    // Kill timer first
     KillTimer(m_nTimer);
     if (m_pFullCtrl != NULL)
     {
         m_pFullCtrl->OnTimer(uMsg, wParam, lParam, bHandled);
     }
+    // Set again
     m_nTimer = ::SetTimer(m_hWnd, 1, MIN_UPDATE_RATE, NULL);
     return 0;
 }

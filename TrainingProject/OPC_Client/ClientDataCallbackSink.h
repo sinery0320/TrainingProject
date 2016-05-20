@@ -7,9 +7,9 @@ class ClientDataCallbackSink:
     public IOPCDataCallback
 {
 private:
-    ULONG m_nRef;
-    list<double> * m_listY;
-    CWnd * m_pWnd;
+    ULONG m_nRef;           // Ref number
+    list<double> * m_listY; // List for item value
+    CWnd * m_pWnd;          // Window
 public:
     ClientDataCallbackSink(list<double> * value, CWnd * pWnd);
     ~ClientDataCallbackSink();

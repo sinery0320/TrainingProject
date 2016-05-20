@@ -50,6 +50,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
     HRESULT hr = S_OK;
     IUnknown * pIUnk = NULL;
     CLSID clsid;
+    // COM initialize
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (SUCCEEDED(hr))
     {
@@ -60,7 +61,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         TRACE(L"COM Initialized failed\n");
         return FALSE;
     }
-
+    // Get CLSID
     hr = CLSIDFromProgID(L"TrainingProject.OPC_Server.OPCServer.1", &clsid);
     if (SUCCEEDED(hr))
     {
@@ -71,6 +72,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         TRACE(L"Get CLSID failed\n");
         return FALSE;
     }
+    // Get OPC server's IUnknown interface
     hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IUnknown, (LPVOID*)&pIUnk);
     if (SUCCEEDED(hr))
     {
@@ -80,6 +82,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
     {
         TRACE(L"OPCServer Initialization failed!\n");
     }
+    // Query IOPCServer interface
     hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
     if (SUCCEEDED(hr))
     {
@@ -100,6 +103,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
     DWORD dwUpdateRate = 0;
     IOPCItemMgt * pIOPCItemMgt = NULL;
     DWORD dwLCID = 2052;
+    // Add Group
     hr = m_pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
     if (SUCCEEDED(hr))
     {
@@ -121,6 +125,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         }
         return FALSE;
     }
+    // Add connection point container
     IConnectionPointContainer * pConnectionPointContainer = NULL;
     hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
     if (SUCCEEDED(hr))
@@ -147,6 +152,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         }
         return FALSE;
     }
+    // Add connection point
     IConnectionPoint * pConnectionPoint = NULL;
     hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
     if (SUCCEEDED(hr))
@@ -177,6 +183,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         }
         return FALSE;
     }
+    // Advise
     ClientDataCallbackSink * pSink = NULL;
     pSink = new ClientDataCallbackSink(m_listY, this);
     DWORD dwCookie = 0;
@@ -217,6 +224,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
             return FALSE;
         }
     }
+    // Add item
     OPCITEMDEF * opcItem = (OPCITEMDEF*)CoTaskMemAlloc(3 * sizeof(OPCITEMDEF));
     opcItem[0] = { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 };
     opcItem[1] = { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 };
@@ -256,6 +264,7 @@ BOOL COPC_ClientDlg::OnInitDialog()
         }
         return FALSE;
     }
+    // Draw initialize
     m_pCWnd[ITEMY1] = GetDlgItem(IDC_STATIC4);
     m_pCWnd[ITEMY2] = GetDlgItem(IDC_STATIC5);
     m_pCWnd[ITEMY3] = GetDlgItem(IDC_STATIC6);
@@ -298,9 +307,10 @@ void COPC_ClientDlg::OnPaint()
 	else
 	{
 		CDialogEx::OnPaint();
-        DrawPic(1);
-        DrawPic(2);
-        DrawPic(3);
+        // Draw three plots
+        DrawPlot(1);
+        DrawPlot(2);
+        DrawPlot(3);
 	}
 }
 
@@ -310,9 +320,10 @@ HCURSOR COPC_ClientDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
-
-void COPC_ClientDlg::DrawPic(int index)
+// COPC_ClientDlg::DrawPlot - Draw plot.
+void COPC_ClientDlg::DrawPlot(int index)
 {
+    // Refresh value text
     WCHAR * wcText = new WCHAR[20];
     if (m_listY[index - 1].size() > 0)
     {
@@ -330,6 +341,7 @@ void COPC_ClientDlg::DrawPic(int index)
             SetDlgItemTextW(IDC_STATIC3, wcText);
         }
     }
+    // Prepare for drawing
     int width = m_CRect[index - 1].Width();
     int height = m_CRect[index - 1].Height();
     CDC MemDC;
@@ -345,7 +357,8 @@ void COPC_ClientDlg::DrawPic(int index)
     // Clear background
     MemDC.FillSolidRect(0, 0, width, height, RGB(0, 0, 0));
     //MemDC.FillSolidRect(0, 0, width, height, RGB((index == 1) * 255, (index == 2) * 255, (index == 3) * 255));
-
+    
+    // Draw standard line
     newBrush.CreateSolidBrush(RGB(0, 0, 0));
     pOldBrush = MemDC.SelectObject(&newBrush);
     MemDC.Rectangle(m_CRect);
@@ -364,6 +377,7 @@ void COPC_ClientDlg::DrawPic(int index)
     newPen.CreatePen(PS_SOLID, 2, RGB((index == 1 || index ==2) * 255, (index == 2 || index == 3) * 255, (index == 1 || index == 3) * 255));
     pOldPen = MemDC.SelectObject(&newPen);
 
+    // Draw plot with 240 points
     int nScale = 100;
     int nPointCount = 240;
     if (m_listY[index - 1].size() > 0)
@@ -393,7 +407,6 @@ void COPC_ClientDlg::DrawPic(int index)
         //MemDC.MoveTo(0, height - ny);
         //MemDC.LineTo(width, height - ny);
     }
-
     MemDC.SelectObject(pOldPen);
     newPen.DeleteObject();
     // Copy new bitmap

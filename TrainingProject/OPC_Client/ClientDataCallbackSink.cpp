@@ -48,6 +48,7 @@ ULONG __stdcall ClientDataCallbackSink::Release(void)
     }
     return m_nRef;
 }
+// ClientDataCallbackSink::OnDataChange - Response data change.
 STDMETHODIMP ClientDataCallbackSink::OnDataChange(
     /* [in] */ DWORD dwTransid,
     /* [in] */ OPCHANDLE hGroup,
@@ -73,11 +74,12 @@ STDMETHODIMP ClientDataCallbackSink::OnDataChange(
     //    //wprintf(L"UTC System Time2 (%u-%u-%u %u:%u:%u)\n", sysTime.wYear, sysTime.wMonth, sysTime.wDay, sysTime.wHour, sysTime.wMinute, sysTime.wSecond);
     //}
     //TRACE(L"\n");
+    // Add value to list
     for (size_t i = 0; i < dwCount; i++)
     {
         m_listY[i].push_back(pvValues[i].dblVal);
-        
     }
+    // Send paint message
     ::SendMessage(m_pWnd->m_hWnd, WM_PAINT, 0, 0);
     return S_OK;
     //return E_NOTIMPL;
@@ -116,6 +118,7 @@ STDMETHODIMP ClientDataCallbackSink::OnCancelComplete(
     return E_NOTIMPL;
 }
 
+// Not use
 STDMETHODIMP ClientDataCallbackSink::GetQualityText(UINT qnr, WCHAR* wcQualityText)
 {
     switch (qnr)

@@ -4,7 +4,7 @@
 #include "OPCServer.h"
 using namespace std;
 
-// COPCServer
+// COPCServer::AddGroup - Add group to server.
 STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequestedUpdateRate, OPCHANDLE hClientGroup, LONG * pTimeBias, FLOAT * pPercentDeadband, DWORD dwLCID, OPCHANDLE * phServerGroup, DWORD * pRevisedUpdateRate, REFIID riid, LPUNKNOWN * ppUnk)
 {
     // Add your function implementation here.
@@ -21,7 +21,6 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
             return E_INVALIDARG;
         }
     }
-
     // default return value
     *phServerGroup = NULL;
     *ppUnk = NULL;
@@ -30,6 +29,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     CComObject<COPCGroup> * pGroup = NULL;
     LPWSTR pGroupName = NULL;
     int currentPosition = 0;
+    // Find avaliable resource
     for (currentPosition = 0; currentPosition < GROUP_NUMBER; currentPosition++)
     {
         //if (m_pGroupObject[currentPosition]->m_bInUse == false)
@@ -42,12 +42,12 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
             continue;
         }
     }
+    // Max group number
     if (currentPosition >= GROUP_NUMBER)
     {
         ATLTRACE(L"IOPCServer::AddGroup() - No available resource of group, returning E_OUTOFMEMORY");
         return E_OUTOFMEMORY;
     }
-
     if (szName == NULL || *szName == (WCHAR)NULL)
     {
         // don't have group name;
@@ -77,9 +77,9 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
             wcscpy_s(pGroupName, wcslen(szName) + 1, szName);
         }
     }
-
     LPUNKNOWN test;
     hr = GetGroupByName(pGroupName, IID_IUnknown, &test);
+    // Already has group with same name
     if (hr == S_OK)
     {
         test->Release();
@@ -153,6 +153,7 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         ATLTRACE(L"IOPCServer::AddGroup - Failed to query interface, returning hr");
         return hr;
     }
+    // Add new group to map
     m_mapNametoGroup[szName] = *pGroup;
     return S_OK;
     //return E_NOTIMPL;
@@ -163,6 +164,7 @@ STDMETHODIMP COPCServer::GetErrorString(HRESULT dwError, LCID dwLocale, LPWSTR *
     // Add your function implementation here.
     return E_NOTIMPL;
 }
+// COPCServer::GetGroupByName - Query group by name.
 STDMETHODIMP COPCServer::GetGroupByName(LPCWSTR szName, REFIID riid, LPUNKNOWN * ppUnk)
 {
     // Add your function implementation here.
