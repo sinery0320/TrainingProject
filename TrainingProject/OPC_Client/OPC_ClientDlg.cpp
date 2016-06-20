@@ -32,6 +32,7 @@ void COPC_ClientDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(COPC_ClientDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+    ON_BN_CLICKED(IDOK, &COPC_ClientDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -47,223 +48,223 @@ BOOL COPC_ClientDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-    HRESULT hr = S_OK;
-    IUnknown * pIUnk = NULL;
-    CLSID clsid;
-    // COM initialize
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"COM Initialized succeessfully\n");
-    }
-    else
-    {
-        TRACE(L"COM Initialized failed\n");
-        return FALSE;
-    }
-    // Get CLSID
-    hr = CLSIDFromProgID(L"TrainingProject.OPC_Server.OPCServer.1", &clsid);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"Get CLSID succeessfully\n");
-    }
-    else
-    {
-        TRACE(L"Get CLSID failed\n");
-        return FALSE;
-    }
-    // Get OPC server's IUnknown interface
-    hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IUnknown, (LPVOID*)&pIUnk);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"OPCServer Initialization successfully!\n");
-    }
-    else
-    {
-        TRACE(L"OPCServer Initialization failed!\n");
-    }
-    // Query IOPCServer interface
-    hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"Get OPCServer interface successfully!\n");
-    }
-    else
-    {
-        TRACE(L"Get OPCServer interface failed!\n");
-        if (pIUnk != NULL)
-        {
-            pIUnk->Release();
-        }
-        return FALSE;
-    }
-    LONG lTimeBias = 0;
-    FLOAT dDeadBand = 0.0;
-    OPCHANDLE phServerGroup;
-    DWORD dwUpdateRate = 0;
-    IOPCItemMgt * pIOPCItemMgt = NULL;
-    DWORD dwLCID = 2052;
-    // Add Group
-    hr = m_pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"Call AddGroup function successfully!\n");
-    }
-    else
-    {
-        TRACE(L"Call AddGroup function failed!\n");
-        IOPCServer * tempIOPCServer = m_pIOPCServer;
-        if (tempIOPCServer != NULL)
-        {
-            m_pIOPCServer = NULL;
-            tempIOPCServer->Release();
-            tempIOPCServer = NULL;
-        }
-        if (pIUnk != NULL)
-        {
-            pIUnk->Release();
-        }
-        return FALSE;
-    }
-    // Add connection point container
-    IConnectionPointContainer * pConnectionPointContainer = NULL;
-    hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"Get IConnectionPointContainer interface successfully.\n");
-    }
-    else
-    {
-        TRACE(L"Get IConnectionPointContainer interface failed.\n");
-        if (pIOPCItemMgt != NULL)
-        {
-            pIOPCItemMgt->Release();
-        }
-        IOPCServer * tempIOPCServer = m_pIOPCServer;
-        if (tempIOPCServer != NULL)
-        {
-            m_pIOPCServer = NULL;
-            tempIOPCServer->Release();
-            tempIOPCServer = NULL;
-        }
-        if (pIUnk != NULL)
-        {
-            pIUnk->Release();
-        }
-        return FALSE;
-    }
-    // Add connection point
-    IConnectionPoint * pConnectionPoint = NULL;
-    hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"Get ConnettionPoint successfully.\n");
-    }
-    else
-    {
-        TRACE(L"Get ConnettionPoint failed.\n");
-        if (pConnectionPointContainer != NULL)
-        {
-            pConnectionPointContainer->Release();
-        }
-        if (pIOPCItemMgt != NULL)
-        {
-            pIOPCItemMgt->Release();
-        }
-        IOPCServer * tempIOPCServer = m_pIOPCServer;
-        if (tempIOPCServer != NULL)
-        {
-            m_pIOPCServer = NULL;
-            tempIOPCServer->Release();
-            tempIOPCServer = NULL;
-        }
-        if (pIUnk != NULL)
-        {
-            pIUnk->Release();
-        }
-        return FALSE;
-    }
-    // Advise
-    ClientDataCallbackSink * pSink = NULL;
-    pSink = new ClientDataCallbackSink(m_listY, this);
-    DWORD dwCookie = 0;
-    if (pSink != NULL)
-    {
-        hr = pConnectionPoint->Advise(pSink, &dwCookie);
-        //cout << hr << endl;
-        if (SUCCEEDED(hr))
-        {
-            TRACE(L"Advise successfully\n");
-        }
-        else
-        {
-            TRACE(L"Advise failed\n");
-            if (pConnectionPoint != NULL)
-            {
-                pConnectionPoint->Release();
-            }
-            if (pConnectionPointContainer != NULL)
-            {
-                pConnectionPointContainer->Release();
-            }
-            if (pIOPCItemMgt != NULL)
-            {
-                pIOPCItemMgt->Release();
-            }
-            IOPCServer * tempIOPCServer = m_pIOPCServer;
-            if (tempIOPCServer != NULL)
-            {
-                m_pIOPCServer = NULL;
-                tempIOPCServer->Release();
-                tempIOPCServer = NULL;
-            }
-            if (pIUnk != NULL)
-            {
-                pIUnk->Release();
-            }
-            return FALSE;
-        }
-    }
-    // Add item
-    OPCITEMDEF * opcItem = (OPCITEMDEF*)CoTaskMemAlloc(3 * sizeof(OPCITEMDEF));
-    opcItem[0] = { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 };
-    opcItem[1] = { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 };
-    opcItem[2] = { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 };
-    OPCITEMRESULT * opcItemResult = NULL;
-    HRESULT * errorResult = NULL;
-    hr = pIOPCItemMgt->AddItems(3, opcItem, &opcItemResult, &errorResult);
-    if (SUCCEEDED(hr))
-    {
-        TRACE(L"AddItems successfully!\n");
-    }
-    else
-    {
-        TRACE(L"AddItems failed!\n");
-        if (pConnectionPoint != NULL)
-        {
-            pConnectionPoint->Release();
-        }
-        if (pConnectionPointContainer != NULL)
-        {
-            pConnectionPointContainer->Release();
-        }
-        if (pIOPCItemMgt != NULL)
-        {
-            pIOPCItemMgt->Release();
-        }
-        IOPCServer * tempIOPCServer = m_pIOPCServer;
-        if (tempIOPCServer != NULL)
-        {
-            m_pIOPCServer = NULL;
-            tempIOPCServer->Release();
-            tempIOPCServer = NULL;
-        }
-        if (pIUnk != NULL)
-        {
-            pIUnk->Release();
-        }
-        return FALSE;
-    }
+    //HRESULT hr = S_OK;
+    //IUnknown * pIUnk = NULL;
+    //CLSID clsid;
+    //// COM initialize
+    //hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"COM Initialized succeessfully\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"COM Initialized failed\n");
+    //    return FALSE;
+    //}
+    //// Get CLSID
+    //hr = CLSIDFromProgID(L"TrainingProject.OPC_Server.OPCServer.1", &clsid);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"Get CLSID succeessfully\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"Get CLSID failed\n");
+    //    return FALSE;
+    //}
+    //// Get OPC server's IUnknown interface
+    //hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IUnknown, (LPVOID*)&pIUnk);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"OPCServer Initialization successfully!\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"OPCServer Initialization failed!\n");
+    //}
+    //// Query IOPCServer interface
+    //hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"Get OPCServer interface successfully!\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"Get OPCServer interface failed!\n");
+    //    if (pIUnk != NULL)
+    //    {
+    //        pIUnk->Release();
+    //    }
+    //    return FALSE;
+    //}
+    //LONG lTimeBias = 0;
+    //FLOAT dDeadBand = 0.0;
+    //OPCHANDLE phServerGroup;
+    //DWORD dwUpdateRate = 0;
+    //IOPCItemMgt * pIOPCItemMgt = NULL;
+    //DWORD dwLCID = 2052;
+    //// Add Group
+    //hr = m_pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"Call AddGroup function successfully!\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"Call AddGroup function failed!\n");
+    //    IOPCServer * tempIOPCServer = m_pIOPCServer;
+    //    if (tempIOPCServer != NULL)
+    //    {
+    //        m_pIOPCServer = NULL;
+    //        tempIOPCServer->Release();
+    //        tempIOPCServer = NULL;
+    //    }
+    //    if (pIUnk != NULL)
+    //    {
+    //        pIUnk->Release();
+    //    }
+    //    return FALSE;
+    //}
+    //// Add connection point container
+    //IConnectionPointContainer * pConnectionPointContainer = NULL;
+    //hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"Get IConnectionPointContainer interface successfully.\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"Get IConnectionPointContainer interface failed.\n");
+    //    if (pIOPCItemMgt != NULL)
+    //    {
+    //        pIOPCItemMgt->Release();
+    //    }
+    //    IOPCServer * tempIOPCServer = m_pIOPCServer;
+    //    if (tempIOPCServer != NULL)
+    //    {
+    //        m_pIOPCServer = NULL;
+    //        tempIOPCServer->Release();
+    //        tempIOPCServer = NULL;
+    //    }
+    //    if (pIUnk != NULL)
+    //    {
+    //        pIUnk->Release();
+    //    }
+    //    return FALSE;
+    //}
+    //// Add connection point
+    //IConnectionPoint * pConnectionPoint = NULL;
+    //hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"Get ConnettionPoint successfully.\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"Get ConnettionPoint failed.\n");
+    //    if (pConnectionPointContainer != NULL)
+    //    {
+    //        pConnectionPointContainer->Release();
+    //    }
+    //    if (pIOPCItemMgt != NULL)
+    //    {
+    //        pIOPCItemMgt->Release();
+    //    }
+    //    IOPCServer * tempIOPCServer = m_pIOPCServer;
+    //    if (tempIOPCServer != NULL)
+    //    {
+    //        m_pIOPCServer = NULL;
+    //        tempIOPCServer->Release();
+    //        tempIOPCServer = NULL;
+    //    }
+    //    if (pIUnk != NULL)
+    //    {
+    //        pIUnk->Release();
+    //    }
+    //    return FALSE;
+    //}
+    //// Advise
+    //ClientDataCallbackSink * pSink = NULL;
+    //pSink = new ClientDataCallbackSink(m_listY, this);
+    //DWORD dwCookie = 0;
+    //if (pSink != NULL)
+    //{
+    //    hr = pConnectionPoint->Advise(pSink, &dwCookie);
+    //    //cout << hr << endl;
+    //    if (SUCCEEDED(hr))
+    //    {
+    //        TRACE(L"Advise successfully\n");
+    //    }
+    //    else
+    //    {
+    //        TRACE(L"Advise failed\n");
+    //        if (pConnectionPoint != NULL)
+    //        {
+    //            pConnectionPoint->Release();
+    //        }
+    //        if (pConnectionPointContainer != NULL)
+    //        {
+    //            pConnectionPointContainer->Release();
+    //        }
+    //        if (pIOPCItemMgt != NULL)
+    //        {
+    //            pIOPCItemMgt->Release();
+    //        }
+    //        IOPCServer * tempIOPCServer = m_pIOPCServer;
+    //        if (tempIOPCServer != NULL)
+    //        {
+    //            m_pIOPCServer = NULL;
+    //            tempIOPCServer->Release();
+    //            tempIOPCServer = NULL;
+    //        }
+    //        if (pIUnk != NULL)
+    //        {
+    //            pIUnk->Release();
+    //        }
+    //        return FALSE;
+    //    }
+    //}
+    //// Add item
+    //OPCITEMDEF * opcItem = (OPCITEMDEF*)CoTaskMemAlloc(3 * sizeof(OPCITEMDEF));
+    //opcItem[0] = { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 };
+    //opcItem[1] = { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 };
+    //opcItem[2] = { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 };
+    //OPCITEMRESULT * opcItemResult = NULL;
+    //HRESULT * errorResult = NULL;
+    //hr = pIOPCItemMgt->AddItems(3, opcItem, &opcItemResult, &errorResult);
+    //if (SUCCEEDED(hr))
+    //{
+    //    TRACE(L"AddItems successfully!\n");
+    //}
+    //else
+    //{
+    //    TRACE(L"AddItems failed!\n");
+    //    if (pConnectionPoint != NULL)
+    //    {
+    //        pConnectionPoint->Release();
+    //    }
+    //    if (pConnectionPointContainer != NULL)
+    //    {
+    //        pConnectionPointContainer->Release();
+    //    }
+    //    if (pIOPCItemMgt != NULL)
+    //    {
+    //        pIOPCItemMgt->Release();
+    //    }
+    //    IOPCServer * tempIOPCServer = m_pIOPCServer;
+    //    if (tempIOPCServer != NULL)
+    //    {
+    //        m_pIOPCServer = NULL;
+    //        tempIOPCServer->Release();
+    //        tempIOPCServer = NULL;
+    //    }
+    //    if (pIUnk != NULL)
+    //    {
+    //        pIUnk->Release();
+    //    }
+    //    return FALSE;
+    //}
     // Draw initialize
     m_pCWnd[ITEMY1] = GetDlgItem(IDC_STATIC4);
     m_pCWnd[ITEMY2] = GetDlgItem(IDC_STATIC5);
@@ -442,3 +443,227 @@ void COPC_ClientDlg::DrawPlot(int index)
 //
 //
 //}
+
+
+void COPC_ClientDlg::OnBnClickedOk()
+{
+    // TODO: Add your control notification handler code here
+    //CDialogEx::OnOK();
+    HRESULT hr = S_OK;
+    IUnknown * pIUnk = NULL;
+    CLSID clsid;
+    // COM initialize
+    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"COM Initialized succeessfully\n");
+    }
+    else
+    {
+        TRACE(L"COM Initialized failed\n");
+        return;
+    }
+    // Get CLSID
+    hr = CLSIDFromProgID(L"TrainingProject.OPC_Server.OPCServer.1", &clsid);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"Get CLSID succeessfully\n");
+    }
+    else
+    {
+        TRACE(L"Get CLSID failed\n");
+        return;
+    }
+    // Get OPC server's IUnknown interface
+    hr = CoCreateInstance(clsid, NULL, CLSCTX_LOCAL_SERVER, IID_IUnknown, (LPVOID*)&pIUnk);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"OPCServer Initialization successfully!\n");
+    }
+    else
+    {
+        TRACE(L"OPCServer Initialization failed!\n");
+    }
+    // Query IOPCServer interface
+    hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"Get OPCServer interface successfully!\n");
+    }
+    else
+    {
+        TRACE(L"Get OPCServer interface failed!\n");
+        if (pIUnk != NULL)
+        {
+            pIUnk->Release();
+        }
+        return;
+    }
+    LONG lTimeBias = 0;
+    FLOAT dDeadBand = 0.0;
+    OPCHANDLE phServerGroup;
+    DWORD dwUpdateRate = 0;
+    IOPCItemMgt * pIOPCItemMgt = NULL;
+    DWORD dwLCID = 2052;
+    // Add Group
+    hr = m_pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"Call AddGroup function successfully!\n");
+    }
+    else
+    {
+        TRACE(L"Call AddGroup function failed!\n");
+        IOPCServer * tempIOPCServer = m_pIOPCServer;
+        if (tempIOPCServer != NULL)
+        {
+            m_pIOPCServer = NULL;
+            tempIOPCServer->Release();
+            tempIOPCServer = NULL;
+        }
+        if (pIUnk != NULL)
+        {
+            pIUnk->Release();
+        }
+        return;
+    }
+    // Add connection point container
+    IConnectionPointContainer * pConnectionPointContainer = NULL;
+    hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"Get IConnectionPointContainer interface successfully.\n");
+    }
+    else
+    {
+        TRACE(L"Get IConnectionPointContainer interface failed.\n");
+        if (pIOPCItemMgt != NULL)
+        {
+            pIOPCItemMgt->Release();
+        }
+        IOPCServer * tempIOPCServer = m_pIOPCServer;
+        if (tempIOPCServer != NULL)
+        {
+            m_pIOPCServer = NULL;
+            tempIOPCServer->Release();
+            tempIOPCServer = NULL;
+        }
+        if (pIUnk != NULL)
+        {
+            pIUnk->Release();
+        }
+        return;
+    }
+    // Add connection point
+    IConnectionPoint * pConnectionPoint = NULL;
+    hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"Get ConnettionPoint successfully.\n");
+    }
+    else
+    {
+        TRACE(L"Get ConnettionPoint failed.\n");
+        if (pConnectionPointContainer != NULL)
+        {
+            pConnectionPointContainer->Release();
+        }
+        if (pIOPCItemMgt != NULL)
+        {
+            pIOPCItemMgt->Release();
+        }
+        IOPCServer * tempIOPCServer = m_pIOPCServer;
+        if (tempIOPCServer != NULL)
+        {
+            m_pIOPCServer = NULL;
+            tempIOPCServer->Release();
+            tempIOPCServer = NULL;
+        }
+        if (pIUnk != NULL)
+        {
+            pIUnk->Release();
+        }
+        return;
+    }
+    // Advise
+    ClientDataCallbackSink * pSink = NULL;
+    pSink = new ClientDataCallbackSink(m_listY, this);
+    DWORD dwCookie = 0;
+    if (pSink != NULL)
+    {
+        hr = pConnectionPoint->Advise(pSink, &dwCookie);
+        //cout << hr << endl;
+        if (SUCCEEDED(hr))
+        {
+            TRACE(L"Advise successfully\n");
+        }
+        else
+        {
+            TRACE(L"Advise failed\n");
+            if (pConnectionPoint != NULL)
+            {
+                pConnectionPoint->Release();
+            }
+            if (pConnectionPointContainer != NULL)
+            {
+                pConnectionPointContainer->Release();
+            }
+            if (pIOPCItemMgt != NULL)
+            {
+                pIOPCItemMgt->Release();
+            }
+            IOPCServer * tempIOPCServer = m_pIOPCServer;
+            if (tempIOPCServer != NULL)
+            {
+                m_pIOPCServer = NULL;
+                tempIOPCServer->Release();
+                tempIOPCServer = NULL;
+            }
+            if (pIUnk != NULL)
+            {
+                pIUnk->Release();
+            }
+            return;
+        }
+    }
+    // Add item
+    OPCITEMDEF * opcItem = (OPCITEMDEF*)CoTaskMemAlloc(3 * sizeof(OPCITEMDEF));
+    opcItem[0] = { NULL, L"ItemY1", TRUE, 0, 0, NULL, VT_R8, 0 };
+    opcItem[1] = { NULL, L"ItemY2", TRUE, 0, 0, NULL, VT_R8, 0 };
+    opcItem[2] = { NULL, L"ItemY3", TRUE, 0, 0, NULL, VT_R8, 0 };
+    OPCITEMRESULT * opcItemResult = NULL;
+    HRESULT * errorResult = NULL;
+    hr = pIOPCItemMgt->AddItems(3, opcItem, &opcItemResult, &errorResult);
+    if (SUCCEEDED(hr))
+    {
+        TRACE(L"AddItems successfully!\n");
+    }
+    else
+    {
+        TRACE(L"AddItems failed!\n");
+        if (pConnectionPoint != NULL)
+        {
+            pConnectionPoint->Release();
+        }
+        if (pConnectionPointContainer != NULL)
+        {
+            pConnectionPointContainer->Release();
+        }
+        if (pIOPCItemMgt != NULL)
+        {
+            pIOPCItemMgt->Release();
+        }
+        IOPCServer * tempIOPCServer = m_pIOPCServer;
+        if (tempIOPCServer != NULL)
+        {
+            m_pIOPCServer = NULL;
+            tempIOPCServer->Release();
+            tempIOPCServer = NULL;
+        }
+        if (pIUnk != NULL)
+        {
+            pIUnk->Release();
+        }
+        return;
+    }
+}

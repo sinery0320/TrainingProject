@@ -42,4 +42,6 @@ private:
 
     list<double> m_listY[ITEM_NUMBER];  // list for item value
     
+public:
+    afx_msg void OnBnClickedOk();
 };

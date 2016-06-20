@@ -97,7 +97,11 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         ATLTRACE(L"IOPCServer::AddGroup - Failed to CreateInstance of pGroup, returning hr");
         return hr;
     }
-    pGroup->m_wcSzName = pGroupName;
+    // 2016.6.20 Change assign to copy function.
+    pGroup->m_wcSzName = new WCHAR[wcslen(pGroupName) + 1];
+    wcscpy_s(pGroup->m_wcSzName, wcslen(pGroupName) + 1, pGroupName);
+    delete [] pGroupName;
+    //pGroup->m_wcSzName = pGroupName;
     pGroup->m_bActive = bActive;
     //m_pGroupObject[currentPosition]->m_wcSzName = pGroupName;
     //m_pGroupObject[currentPosition]->m_bActive = bActive;

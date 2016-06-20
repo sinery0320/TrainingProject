@@ -97,7 +97,7 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
     }
     else
     {
-        return S_FALSE;
+        return E_FAIL;
     }
     //return E_NOTIMPL;
 }
