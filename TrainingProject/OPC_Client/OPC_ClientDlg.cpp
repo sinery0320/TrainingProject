@@ -461,6 +461,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"COM Initialized failed\n");
+        MessageBox(L"COM Initialized failed\n");
         return;
     }
     // Get CLSID
@@ -472,6 +473,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"Get CLSID failed\n");
+        MessageBox(L"Get CLSID failed\n");
         return;
     }
     // Get OPC server's IUnknown interface
@@ -483,6 +485,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"OPCServer Initialization failed!\n");
+        MessageBox(L"OPCServer Initialization failed!\n");
     }
     // Query IOPCServer interface
     hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
@@ -493,6 +496,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"Get OPCServer interface failed!\n");
+        MessageBox(L"Get OPCServer interface failed!\n");
         if (pIUnk != NULL)
         {
             pIUnk->Release();
@@ -514,6 +518,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"Call AddGroup function failed!\n");
+        MessageBox(L"Call AddGroup function failed!\n");
         IOPCServer * tempIOPCServer = m_pIOPCServer;
         if (tempIOPCServer != NULL)
         {
@@ -537,6 +542,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"Get IConnectionPointContainer interface failed.\n");
+        MessageBox(L"Get IConnectionPointContainer interface failed.\n");
         if (pIOPCItemMgt != NULL)
         {
             pIOPCItemMgt->Release();
@@ -564,6 +570,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     else
     {
         TRACE(L"Get ConnettionPoint failed.\n");
+        MessageBox(L"Get ConnettionPoint failed.\n");
         if (pConnectionPointContainer != NULL)
         {
             pConnectionPointContainer->Release();
@@ -600,6 +607,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         else
         {
             TRACE(L"Advise failed\n");
+            MessageBox(L"Advise failed\n");
             if (pConnectionPoint != NULL)
             {
                 pConnectionPoint->Release();
@@ -637,10 +645,12 @@ void COPC_ClientDlg::OnBnClickedOk()
     if (SUCCEEDED(hr))
     {
         TRACE(L"AddItems successfully!\n");
+        GetDlgItem(IDOK)->EnableWindow(FALSE);
     }
     else
     {
         TRACE(L"AddItems failed!\n");
+        MessageBox(L"AddItems failed!\n");
         if (pConnectionPoint != NULL)
         {
             pConnectionPoint->Release();
