@@ -51,7 +51,8 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     if (szName == NULL || *szName == (WCHAR)NULL)
     {
         // don't have group name;
-        pGroupName = new WCHAR[32];
+        //pGroupName = new WCHAR[32];
+        pGroupName = (WCHAR*)CoTaskMemAlloc(32 * sizeof(WCHAR));
         if (pGroupName == NULL)
         {
             ATLTRACE(L"IOPCServer::AddGroup() - Failed to allocate memory of pGroupName, returning E_OUTOFMEMORY");  
@@ -66,7 +67,8 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
     else
     {
         //ATLTRACE(L"%d\n", wcslen(szName) + 1);
-        pGroupName = new WCHAR[wcslen(szName) + 1];
+        //pGroupName = new WCHAR[wcslen(szName) + 1];
+        pGroupName = (WCHAR*)CoTaskMemAlloc((wcslen(szName) + 1) * sizeof(WCHAR));
         if (pGroupName == NULL)
         {
             ATLTRACE(L"IOPCServer::AddGroup() - Failed to allocate memory of pGroupName, returning E_OUTOFMEMORY");
@@ -98,10 +100,10 @@ STDMETHODIMP COPCServer::AddGroup(LPCWSTR szName, BOOL bActive, DWORD dwRequeste
         return hr;
     }
     // 2016.6.20 Change assign to copy function.
-    pGroup->m_wcSzName = new WCHAR[wcslen(pGroupName) + 1];
-    wcscpy_s(pGroup->m_wcSzName, wcslen(pGroupName) + 1, pGroupName);
-    delete [] pGroupName;
-    //pGroup->m_wcSzName = pGroupName;
+    //pGroup->m_wcSzName = new WCHAR[wcslen(pGroupName) + 1];
+    //wcscpy_s(pGroup->m_wcSzName, wcslen(pGroupName) + 1, pGroupName);
+    //delete [] pGroupName;
+    pGroup->m_wcSzName = pGroupName;
     pGroup->m_bActive = bActive;
     //m_pGroupObject[currentPosition]->m_wcSzName = pGroupName;
     //m_pGroupObject[currentPosition]->m_bActive = bActive;

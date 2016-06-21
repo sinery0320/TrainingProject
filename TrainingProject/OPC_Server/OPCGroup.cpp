@@ -93,6 +93,8 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
     *ppErrors = pHr;
     if (bSuccess == true)
     {
+        // 2016/6/21 Set timer only when add item successfully
+        m_cWinHidden->SetThisTimer(1, MIN_UPDATE_RATE, NULL);
         return S_OK;
     }
     else

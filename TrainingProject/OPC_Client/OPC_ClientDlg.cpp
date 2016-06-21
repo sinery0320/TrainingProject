@@ -450,7 +450,8 @@ void COPC_ClientDlg::OnBnClickedOk()
     // TODO: Add your control notification handler code here
     //CDialogEx::OnOK();
     HRESULT hr = S_OK;
-    IUnknown * pIUnk = NULL;
+    // 2016/6/21 Change to CComPtr
+    CComPtr<IUnknown> pIUnk = NULL;
     CLSID clsid;
     // COM initialize
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
@@ -486,6 +487,7 @@ void COPC_ClientDlg::OnBnClickedOk()
     {
         TRACE(L"OPCServer Initialization failed!\n");
         MessageBox(L"OPCServer Initialization failed!\n");
+        return;
     }
     // Query IOPCServer interface
     hr = pIUnk->QueryInterface(IID_IOPCServer, (LPVOID*)&m_pIOPCServer);
@@ -499,7 +501,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         MessageBox(L"Get OPCServer interface failed!\n");
         if (pIUnk != NULL)
         {
-            pIUnk->Release();
+            pIUnk = NULL;
         }
         return;
     }
@@ -507,7 +509,8 @@ void COPC_ClientDlg::OnBnClickedOk()
     FLOAT dDeadBand = 0.0;
     OPCHANDLE phServerGroup;
     DWORD dwUpdateRate = 0;
-    IOPCItemMgt * pIOPCItemMgt = NULL;
+    //IOPCItemMgt * pIOPCItemMgt = NULL;
+    CComPtr<IOPCItemMgt> pIOPCItemMgt = NULL;
     DWORD dwLCID = 2052;
     // Add Group
     hr = m_pIOPCServer->AddGroup(L"Group1", true, 200, 1, &lTimeBias, &dDeadBand, dwLCID, &phServerGroup, &dwUpdateRate, IID_IOPCItemMgt, (LPUNKNOWN*)&pIOPCItemMgt);
@@ -528,12 +531,12 @@ void COPC_ClientDlg::OnBnClickedOk()
         }
         if (pIUnk != NULL)
         {
-            pIUnk->Release();
+            pIUnk = NULL;
         }
         return;
     }
     // Add connection point container
-    IConnectionPointContainer * pConnectionPointContainer = NULL;
+    CComPtr<IConnectionPointContainer> pConnectionPointContainer = NULL;
     hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
     if (SUCCEEDED(hr))
     {
@@ -545,7 +548,8 @@ void COPC_ClientDlg::OnBnClickedOk()
         MessageBox(L"Get IConnectionPointContainer interface failed.\n");
         if (pIOPCItemMgt != NULL)
         {
-            pIOPCItemMgt->Release();
+            //pIOPCItemMgt->Release();
+            pIOPCItemMgt = NULL;
         }
         IOPCServer * tempIOPCServer = m_pIOPCServer;
         if (tempIOPCServer != NULL)
@@ -556,7 +560,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         }
         if (pIUnk != NULL)
         {
-            pIUnk->Release();
+            pIUnk = NULL;
         }
         return;
     }
@@ -573,11 +577,13 @@ void COPC_ClientDlg::OnBnClickedOk()
         MessageBox(L"Get ConnettionPoint failed.\n");
         if (pConnectionPointContainer != NULL)
         {
-            pConnectionPointContainer->Release();
+            //pConnectionPointContainer->Release();
+            pConnectionPointContainer = NULL;
         }
         if (pIOPCItemMgt != NULL)
         {
-            pIOPCItemMgt->Release();
+            //pIOPCItemMgt->Release();
+            pIOPCItemMgt = NULL;
         }
         IOPCServer * tempIOPCServer = m_pIOPCServer;
         if (tempIOPCServer != NULL)
@@ -588,7 +594,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         }
         if (pIUnk != NULL)
         {
-            pIUnk->Release();
+            pIUnk = NULL;
         }
         return;
     }
@@ -614,11 +620,13 @@ void COPC_ClientDlg::OnBnClickedOk()
             }
             if (pConnectionPointContainer != NULL)
             {
-                pConnectionPointContainer->Release();
+                //pConnectionPointContainer->Release();
+                pConnectionPointContainer = NULL;
             }
             if (pIOPCItemMgt != NULL)
             {
-                pIOPCItemMgt->Release();
+                //pIOPCItemMgt->Release();
+                pIOPCItemMgt = NULL;
             }
             IOPCServer * tempIOPCServer = m_pIOPCServer;
             if (tempIOPCServer != NULL)
@@ -629,7 +637,7 @@ void COPC_ClientDlg::OnBnClickedOk()
             }
             if (pIUnk != NULL)
             {
-                pIUnk->Release();
+                pIUnk = NULL;
             }
             return;
         }
@@ -657,11 +665,13 @@ void COPC_ClientDlg::OnBnClickedOk()
         }
         if (pConnectionPointContainer != NULL)
         {
-            pConnectionPointContainer->Release();
+            //pConnectionPointContainer->Release();
+            pConnectionPointContainer = NULL;
         }
         if (pIOPCItemMgt != NULL)
         {
-            pIOPCItemMgt->Release();
+            //pIOPCItemMgt->Release();
+            pIOPCItemMgt = NULL;
         }
         IOPCServer * tempIOPCServer = m_pIOPCServer;
         if (tempIOPCServer != NULL)
@@ -672,7 +682,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         }
         if (pIUnk != NULL)
         {
-            pIUnk->Release();
+            pIUnk = NULL;
         }
         return;
     }

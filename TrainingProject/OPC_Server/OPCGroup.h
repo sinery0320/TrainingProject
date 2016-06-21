@@ -152,7 +152,8 @@ public:
 
         m_cWinHidden = new CWinHidden();
         m_cWinHidden->AttachCtl(this);
-        m_cWinHidden->SetThisTimer(1, MIN_UPDATE_RATE, NULL);
+        // 2016/6/21 Not set timer on initialization
+        //m_cWinHidden->SetThisTimer(1, MIN_UPDATE_RATE, NULL);
     }
 
     ~COPCGroup()
