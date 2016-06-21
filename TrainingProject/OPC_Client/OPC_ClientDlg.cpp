@@ -536,6 +536,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         return;
     }
     // Add connection point container
+    //IConnectionPointContainer * pConnectionPointContainer = NULL;
     CComPtr<IConnectionPointContainer> pConnectionPointContainer = NULL;
     hr = pIOPCItemMgt->QueryInterface(IID_IConnectionPointContainer, (void **)&pConnectionPointContainer);
     if (SUCCEEDED(hr))
@@ -565,6 +566,7 @@ void COPC_ClientDlg::OnBnClickedOk()
         return;
     }
     // Add connection point
+    // 2016/6/21 pConnectionPoint can't be CComPtr
     IConnectionPoint * pConnectionPoint = NULL;
     hr = pConnectionPointContainer->FindConnectionPoint(IID_IOPCDataCallback, &pConnectionPoint);
     if (SUCCEEDED(hr))

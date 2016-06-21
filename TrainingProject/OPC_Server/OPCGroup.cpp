@@ -70,7 +70,9 @@ STDMETHODIMP COPCGroup::AddItems(DWORD dwCount, OPCITEMDEF * pItemArray, OPCITEM
         pHr[i] = pNewItem->InitItem(hOPC, &pItemArray[i], &pItemResult[i]);
         if (FAILED(pHr[i]))
         {
-            delete pNewItem;
+            //delete pNewItem;
+            // 2016/6/21 Change delete fo CoTaskMemFree
+            CoTaskMemFree(pNewItem);
             bSuccess = false;
             continue;
         }

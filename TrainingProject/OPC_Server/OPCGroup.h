@@ -154,10 +154,14 @@ public:
         m_cWinHidden->AttachCtl(this);
         // 2016/6/21 Not set timer on initialization
         //m_cWinHidden->SetThisTimer(1, MIN_UPDATE_RATE, NULL);
+        // 2016/6/21 Move from FinalConstruct function to here
+        m_pSignal.CoCreateInstance(CLSID_Signal);
     }
 
     ~COPCGroup()
     {
+        // 2016/6/21 Move from FinalRelease function to here and assign NULL
+        m_pSignal = NULL;
         //if (m_wcSzName != NULL)
         //{
         //    delete m_wcSzName;
@@ -201,7 +205,7 @@ public:
         //        return E_OUTOFMEMORY;
         //    }
         //}
-        m_pSignal.CoCreateInstance(CLSID_Signal);
+        //m_pSignal.CoCreateInstance(CLSID_Signal);
         return S_OK;
     }
 
@@ -221,7 +225,7 @@ public:
         //    delete m_cWinHidden;
         //    m_cWinHidden = NULL;
         //}
-        m_pSignal.Release();
+        //m_pSignal.Release();
     }
 
 public:
