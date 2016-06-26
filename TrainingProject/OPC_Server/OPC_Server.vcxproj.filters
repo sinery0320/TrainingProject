@@ -73,7 +73,6 @@
     <None Include="OPCServer.rgs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OPC_Server.idl">

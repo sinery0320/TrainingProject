@@ -144,7 +144,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="OPCServer.rgs" />
     <None Include="OPC_Server.rgs" />
   </ItemGroup>
